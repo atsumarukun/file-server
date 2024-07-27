@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"file-server/internal/app/api"
+)
 
 func main() {
-	fmt.Println("Hello World!")
+	api.Serve()
 }

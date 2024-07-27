@@ -1,5 +1,8 @@
 # database directory
-db/data
+db/data/
 
 # temporary build files
-tmp
+tmp/
+
+# environment file
+.env
