@@ -1,0 +1,5 @@
+# database directory
+db/data
+
+# temporary build files
+tmp

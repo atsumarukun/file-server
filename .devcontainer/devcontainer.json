@@ -1,0 +1,20 @@
+{
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "api",
+  "workspaceFolder": "/workspace/api",
+  "postAttachCommand": "git config --global --add safe.directory /workspace && air -c .air.toml",
+  "containerEnv": {
+    "SHELL": "/bin/bash"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "git.openRepositoryInParentFolders": "always"
+      },
+      "extensions": [
+        "golang.Go",
+        "shardulm94.trailing-spaces"
+      ]
+    }
+  }
+}
