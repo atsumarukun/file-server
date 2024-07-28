@@ -11,12 +11,20 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func Serve() {
 	if err := config.Load(); err != nil {
 		panic(err)
 	}
+
+	db, err := gorm.Open(mysql.Open(config.MYSQL_DSN), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(db.Config)
 
 	r := gin.Default()
 
@@ -28,7 +36,7 @@ func Serve() {
 	defer stop()
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.PORT),
+		Addr:    fmt.Sprintf(":%d", config.API_PORT),
 		Handler: r,
 	}
 
