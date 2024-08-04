@@ -1,0 +1,684 @@
+openapi: "3.0.3"
+
+info:
+  title: "file-server"
+  version: "1.0.0"
+
+servers:
+- url: "http://localhost:8000"
+  description: "ローカル環境"
+
+paths:
+  /auth/signin:
+    post:
+      summary: "サインイン"
+      description: "サインイン."
+      tags:
+        - "auth"
+      requestBody:
+        $ref: "#/components/requestBodies/signin"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/signin"
+        401:
+          description: "認証エラー"
+          $ref: "#/components/responses/401"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+  /folders:
+    post:
+      summary: "フォルダを作成"
+      description: "フォルダを作成."
+      tags:
+        - "folder"
+      requestBody:
+        $ref: "#/components/requestBodies/create_folder"
+      responses:
+        201:
+          description: "成功"
+          $ref: "#/components/responses/folder"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /folders/{id}:
+    put:
+      summary: "フォルダを更新"
+      description: "フォルダを更新."
+      tags:
+        - "folder"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/id"
+      requestBody:
+        $ref: "#/components/requestBodies/update_folder"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/folder"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+    delete:
+      summary: "フォルダを削除"
+      description: "フォルダを削除."
+      tags:
+        - "folder"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/id"
+      responses:
+        204:
+          description: "成功"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /folders/{id}/copy:
+    post:
+      summary: "フォルダをコピー"
+      description: "フォルダをコピー."
+      tags:
+        - "folder"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/id"
+      requestBody:
+        $ref: "#/components/requestBodies/copy_folder"
+      responses:
+        201:
+          description: "成功"
+          $ref: "#/components/responses/folder_with_children"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /folders/{id}/move:
+    put:
+      summary: "フォルダを移動"
+      description: "フォルダを移動."
+      tags:
+        - "folder"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/id"
+      requestBody:
+        $ref: "#/components/requestBodies/move_folder"
+      responses:
+        201:
+          description: "成功"
+          $ref: "#/components/responses/folder"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /folders/{*path}:
+    get:
+      summary: "フォルダとを取得"
+      description: "pathで指定されたフォルダと、フォルダに含まれるフォルダとファイルの一覧を取得."
+      tags:
+        - "folder"
+      parameters:
+        - in: path
+          name: "path"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/path"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/folder_with_children"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /files:
+    post:
+      summary: "複数ファイルを作成"
+      description: "pathで指定されたフォルダに複数ファイルを作成."
+      tags:
+        - "file"
+      requestBody:
+        $ref: "#/components/requestBodies/create_files"
+      responses:
+        201:
+          description: "成功"
+          $ref: "#/components/responses/files"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /files/{id}:
+    put:
+      summary: "ファイルを更新"
+      description: "ファイルを更新."
+      tags:
+        - "file"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/file/properties/id"
+      requestBody:
+        $ref: "#/components/requestBodies/update_file"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/file"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+    delete:
+      summary: "ファイルを削除"
+      description: "ファイルを削除."
+      tags:
+        - "file"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/file/properties/id"
+      responses:
+        204:
+          description: "成功"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /files/{id}/copy:
+    post:
+      summary: "ファイルをコピー"
+      description: "ファイルをコピー."
+      tags:
+        - "file"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/file/properties/id"
+      requestBody:
+        $ref: "#/components/requestBodies/copy_file"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/file"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /files/{id}/move:
+    put:
+      summary: "ファイルを移動"
+      description: "ファイルを移動."
+      tags:
+        - "file"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/file/properties/id"
+      requestBody:
+        $ref: "#/components/requestBodies/move_file"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/file"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /static/{*path}:
+    get:
+      summary: "静的ファイルを取得"
+      description: "静的ファイルを取得."
+      tags:
+        - "static"
+      parameters:
+        - in: path
+          name: "path"
+          required: true
+          schema:
+            $ref: "#/components/schemas/file/properties/path"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/static_file"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+  /batch:
+    post:
+      summary: "バッチリクエスト"
+      description: "複数リクエストを実行."
+      tags:
+        - batch
+      requestBody:
+        $ref: "#/components/requestBodies/batch"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/batch"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    signin:
+      type: object
+      properties:
+        password:
+          type: string
+          example: "password"
+          writeOnly: true
+        token:
+          type: string
+          example: "token"
+          readOnly: true
+      required:
+        - password
+        - token
+    created_at:
+      type: string
+      description: "作成日"
+      format: "date-time"
+      example: "2017-07-21T17:32:28Z"
+      readOnly: true
+    updated_at:
+      type: string
+      description: "更新日"
+      format: "date-time"
+      example: "2017-07-21T17:32:28Z"
+      readOnly: true
+    folder:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "フォルダID"
+          minimum: 1
+          example: 2
+          readOnly: true
+        parent_folder_id:
+          type: integer
+          description: "親フォルダID"
+          minimum: 1
+          example: 1
+        name:
+          type: string
+          description: "フォルダ名"
+          example: "example"
+        path:
+          type: string
+          description: "フォルダパス"
+          example: "/example"
+          readOnly: true
+        is_hide:
+          type: boolean
+          description: "非表示フラグ"
+          example: false
+        created_at:
+          $ref: "#/components/schemas/created_at"
+        updated_at:
+          $ref: "#/components/schemas/updated_at"
+      required:
+        - id
+        - parent_folder_id
+        - name
+        - path
+        - is_hide
+        - created_at
+        - updated_at
+        - deleted_at
+    child_folder:
+      allOf:
+        - $ref: "#/components/schemas/folder"
+        - type: object
+          properties:
+            id:
+              example: 3
+            parent_folder_id:
+              example: 2
+            name:
+              example: "child"
+            path:
+              example: "/example/child"
+    file:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ファイルID"
+          minimum: 1
+          example: 1
+          readOnly: true
+        folder_id:
+          allOf:
+            - $ref: "#/components/schemas/folder/properties/id"
+            - readOnly: false
+        name:
+          type: string
+          description: "ファイル名"
+          example: "example.txt"
+        path:
+          type: string
+          description: "ファイルパス"
+          example: "/example/example.txt"
+          readOnly: true
+        is_hide:
+          type: boolean
+          description: "非表示フラグ"
+          example: false
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+          writeOnly: true
+        created_at:
+          $ref: "#/components/schemas/created_at"
+        updated_at:
+          $ref: "#/components/schemas/updated_at"
+      required:
+        - id
+        - folder_id
+        - name
+        - path
+        - is_hide
+        - files
+        - created_at
+        - updated_at
+        - deleted_at
+    batch:
+      type: object
+      properties:
+        url:
+          type: string
+          description: "URL"
+          example: "/folders/{id}"
+        method:
+          type: string
+          enum:
+            - "GET"
+            - "POST"
+            - "PUT"
+            - "DELETE"
+          description: "httpメソッド"
+          example: "DELETE"
+        body:
+          type: string
+          description: "リクエストボディ"
+          example: null
+      required:
+        - url
+        - method
+
+  requestBodies:
+    signin:
+      description: "サインイン"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/signin"
+    create_folder:
+      description: "フォルダ作成"
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/folder"
+              - type: object
+                properties:
+                  path:
+                    readOnly: true
+    update_folder:
+      description: "フォルダ更新"
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/folder"
+              - type: object
+                properties:
+                  parent_folder_id:
+                    readOnly: true
+    copy_folder:
+      description: "フォルダコピー"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/folder"
+    move_folder:
+      description: "フォルダ移動"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              parent_folder_id:
+                $ref: "#/components/schemas/folder/properties/parent_folder_id"
+    create_files:
+      description: "複数ファイル作成"
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/file"
+              - type: object
+                properties:
+                  name:
+                    readOnly: true
+                  path:
+                    readOnly: true
+    update_file:
+      description: "ファイル更新"
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/file"
+              - type: object
+                properties:
+                  folder_id:
+                    readOnly: true
+                  files:
+                    readOnly: true
+    copy_file:
+      description: "ファイルコピー"
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/file"
+              - type: object
+                properties:
+                  files:
+                    readOnly: true
+    move_file:
+      description: "ファイル移動"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              folder_id:
+                $ref: "#/components/schemas/file/properties/folder_id"
+    batch:
+      description: "バッチリクエスト"
+      required: true
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/batch"
+
+  responses:
+    signin:
+      description: "サインイン"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/signin"
+    folder:
+      description: "フォルダ"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/folder"
+    folder_with_children:
+      description: "子供を含むフォルダ"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/folder"
+              - type: object
+                properties:
+                  folders:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/child_folder"
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/file"
+    file:
+      description: "ファイル"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/file"
+    files:
+      description: "複数ファイル"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/file"
+    static_file:
+      description: "静的ファイルID"
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+            example: "binary"
+    batch:
+      description: "バッチリクエスト"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: string
+            example: [null]
+    401:
+      description: "RUnauthorized"
+      content:
+        application/json:
+          schema:
+            type: string
+            example: "unauthorized"
+    404:
+      description: "Resource Not Found"
+      content:
+        application/json:
+          schema:
+            type: string
+            example: "resource not found"
+    500:
+      description: "Internal Server Error"
+      content:
+        application/json:
+          schema:
+            type: string
+            example: "internal server error"
