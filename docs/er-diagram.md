@@ -5,6 +5,7 @@ erDiagram
 
 folders {
     bigint id PK
+    bigint parent_folder_id FK
     varchar(255) name
     varchar(255) path
     boolean is_hide
@@ -24,6 +25,7 @@ files {
     timestamp(6) deleted_at
 }
 
+folders ||--o{ folders: ""
 folders ||--o{ files: ""
 ```
 <br />
@@ -37,6 +39,7 @@ folders ||--o{ files: ""
 | タイプ | 名称 | キー | Null許容 | 説明 |
 | ---- | ---- | ---- | ---- | ---- |
 | bigint | id | PK | | ID |
+| bigint | parent_folder_id | FK | TRUE | フォルダID |
 | varchar(255) | name | | | フォルダ名 |
 | varchar(255) | path | UNIQUE | | フォルダパス |
 | boolean | is_hide | | | 非表示フラグ |
