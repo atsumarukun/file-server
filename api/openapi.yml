@@ -12,7 +12,7 @@ paths:
   /auth/signin:
     post:
       summary: "サインイン"
-      description: "サインイン."
+      description: "非表示のフォルダやファイルを表示するためのサインイン."
       tags:
         - "auth"
       requestBody:
@@ -30,7 +30,7 @@ paths:
   /folders:
     post:
       summary: "フォルダを作成"
-      description: "フォルダを作成."
+      description: "フォルダを作成.<br />bearer tokenが有効であれば非表示フォルダ内での作成が可能."
       tags:
         - "folder"
       requestBody:
@@ -50,7 +50,7 @@ paths:
   /folders/{id}:
     put:
       summary: "フォルダを更新"
-      description: "フォルダを更新."
+      description: "フォルダを更新.<br />bearer tokenが有効であれば非表示フォルダの更新が可能."
       tags:
         - "folder"
       parameters:
@@ -75,7 +75,7 @@ paths:
         - BearerAuth: []
     delete:
       summary: "フォルダを削除"
-      description: "フォルダを削除."
+      description: "フォルダを削除.<br />bearer tokenが有効であれば非表示フォルダの削除が可能."
       tags:
         - "folder"
       parameters:
@@ -98,7 +98,7 @@ paths:
   /folders/{id}/copy:
     post:
       summary: "フォルダをコピー"
-      description: "フォルダをコピー."
+      description: "フォルダをコピー.<br />bearer tokenが有効であれば非表示フォルダのコピーが可能."
       tags:
         - "folder"
       parameters:
@@ -124,7 +124,7 @@ paths:
   /folders/{id}/move:
     put:
       summary: "フォルダを移動"
-      description: "フォルダを移動."
+      description: "フォルダを移動.<br />bearer tokenが有効であれば非表示フォルダの移動が可能."
       tags:
         - "folder"
       parameters:
@@ -150,7 +150,7 @@ paths:
   /folders/{*path}:
     get:
       summary: "フォルダとを取得"
-      description: "pathで指定されたフォルダと、フォルダに含まれるフォルダとファイルの一覧を取得."
+      description: "pathで指定されたフォルダと、フォルダに含まれるフォルダとファイルの一覧を取得.<br />bearer tokenが有効であれば非表示リソースも取得."
       tags:
         - "folder"
       parameters:
@@ -189,12 +189,10 @@ paths:
         500:
           description: "サーバーエラー"
           $ref: "#/components/responses/500"
-      security:
-        - BearerAuth: []
   /files/{id}:
     put:
       summary: "ファイルを更新"
-      description: "ファイルを更新."
+      description: "ファイルを更新.<br />bearer tokenが有効であれば非表示ファイルの更新が可能."
       tags:
         - "file"
       parameters:
@@ -219,7 +217,7 @@ paths:
         - BearerAuth: []
     delete:
       summary: "ファイルを削除"
-      description: "ファイルを削除."
+      description: "ファイルを削除.<br />bearer tokenが有効であれば非表示ファイルの削除が可能."
       tags:
         - "file"
       parameters:
@@ -242,7 +240,7 @@ paths:
   /files/{id}/copy:
     post:
       summary: "ファイルをコピー"
-      description: "ファイルをコピー."
+      description: "ファイルをコピー.<br />bearer tokenが有効であれば非表示ファイルのコピーが可能."
       tags:
         - "file"
       parameters:
@@ -268,7 +266,7 @@ paths:
   /files/{id}/move:
     put:
       summary: "ファイルを移動"
-      description: "ファイルを移動."
+      description: "ファイルを移動.<br />bearer tokenが有効であれば非表示ファイルの移動が可能."
       tags:
         - "file"
       parameters:
@@ -318,7 +316,7 @@ paths:
   /batch:
     post:
       summary: "バッチリクエスト"
-      description: "複数リクエストを実行."
+      description: "複数リクエストを実行.<br />bearer tokenが有効であれば非表示リソースの操作が可能."
       tags:
         - batch
       requestBody:
