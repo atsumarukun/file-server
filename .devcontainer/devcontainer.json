@@ -12,10 +12,11 @@
         "git.openRepositoryInParentFolders": "always"
       },
       "extensions": [
-        "golang.Go",
+        "ReneSaarsoo.sql-formatter-vsc",
         "shardulm94.trailing-spaces",
         "bierner.markdown-mermaid",
-        "42Crunch.vscode-openapi"
+        "42Crunch.vscode-openapi",
+        "golang.Go"
       ]
     }
   }
