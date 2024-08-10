@@ -5,8 +5,8 @@ info:
   version: "1.0.0"
 
 servers:
-- url: "http://localhost:8000"
-  description: "ローカル環境"
+  - url: "http://localhost:8000"
+    description: "ローカル環境"
 
 paths:
   /auth/signin:
@@ -442,6 +442,10 @@ components:
           description: "ファイルパス"
           example: "/example/example.txt"
           readOnly: true
+        type:
+          type: string
+          description: "ファイルタイプ"
+          example: "image/png"
         is_hide:
           type: boolean
           description: "非表示フラグ"
@@ -461,6 +465,7 @@ components:
         - folder_id
         - name
         - path
+        - type
         - is_hide
         - files
         - created_at
@@ -564,6 +569,8 @@ components:
                 properties:
                   folder_id:
                     readOnly: true
+                  type:
+                    readOnly: true
                   files:
                     readOnly: true
     copy_file:
@@ -576,6 +583,8 @@ components:
               - $ref: "#/components/schemas/file"
               - type: object
                 properties:
+                  type:
+                    readOnly: true
                   files:
                     readOnly: true
     move_file:

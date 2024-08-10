@@ -19,6 +19,7 @@ files {
     bigint folder_id FK
     varchar(255) name
     varchar(255) path
+    varchar(64) type
     boolean is_hide
     timestamp(6) created_at
     timestamp(6) updated_at
@@ -57,6 +58,7 @@ folders ||--o{ files: ""
 | bigint | folder_id | FK | | フォルダID |
 | varchar(255) | name | | | ファイル名 |
 | varchar(255) | path | UNIQUE | | ファイルパス |
+| varchar(64) | type | | | ファイルタイプ |
 | boolean | is_hide | | | 非表示フラグ |
 | timestamp(6) | created_at | | | 作成日 |
 | timestamp(6) | updated_at | | | 更新日 |
