@@ -28,9 +28,7 @@ func Serve() {
 
 	r := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, "Hello World!")
-	})
+	route(r, db)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt, os.Kill)
 	defer stop()
