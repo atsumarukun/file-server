@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -53,6 +54,9 @@ func (f *Folder) GetName() string {
 func (f *Folder) SetName(name string) error {
 	if 128 < len(name) {
 		return fmt.Errorf("set folder name: name is too long")
+	}
+	if strings.Contains(name, "/") {
+		return fmt.Errorf("set folder name: invalid name")
 	}
 	f.name = name
 	return nil
