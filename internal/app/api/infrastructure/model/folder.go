@@ -16,3 +16,7 @@ type FolderModel struct {
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt
 }
+
+func (fm *FolderModel) TableName() string {
+	return "folders"
+}

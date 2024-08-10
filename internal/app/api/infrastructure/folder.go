@@ -23,15 +23,15 @@ func (fi *folderInfrastructure) Create(db *gorm.DB, folder *entity.Folder) (*ent
 }
 
 func (fi *folderInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.Folder, error) {
-	var folderModel *model.FolderModel
-	if err := db.First(folderModel, "id = ?", id).Error; err != nil {
+	var folderModel model.FolderModel
+	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		} else {
 			return nil, err
 		}
 	}
-	return fi.modelToEntity(folderModel)
+	return fi.modelToEntity(&folderModel)
 }
 
 func (fi *folderInfrastructure) entityToModel(folder *entity.Folder) *model.FolderModel {
