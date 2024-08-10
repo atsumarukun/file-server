@@ -24,7 +24,6 @@ func Serve() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(db.Config)
 
 	r := gin.Default()
 
