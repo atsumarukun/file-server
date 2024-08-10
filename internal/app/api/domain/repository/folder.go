@@ -1,3 +1,11 @@
 package repository
 
-type FolderRepository interface{}
+import (
+	"file-server/internal/app/api/domain/entity"
+
+	"gorm.io/gorm"
+)
+
+type FolderRepository interface {
+	Create(*gorm.DB, *entity.Folder) (*entity.Folder, error)
+}
