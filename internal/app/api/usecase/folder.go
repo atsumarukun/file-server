@@ -13,6 +13,7 @@ import (
 
 type FolderUsecase interface {
 	Create(int64, string, bool) (*dto.FolderDTO, *apiError.Error)
+	FindOne(string) (*dto.FolderDTO, *apiError.Error)
 }
 
 type folderUsecase struct {
@@ -54,6 +55,17 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 		}
 	}
 
+	return fu.entityToDTO(folder), nil
+}
+
+func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, *apiError.Error) {
+	folder, err := fu.folderRepository.FindOneByPathWithRelationship(fu.db, path)
+	if err != nil {
+		return nil, apiError.NewError(http.StatusNotFound, err.Error())
+	}
+	if folder == nil {
+		return nil, apiError.NewError(http.StatusNotFound, apiError.ErrNotFound.Error())
+	}
 	return fu.entityToDTO(folder), nil
 }
 
