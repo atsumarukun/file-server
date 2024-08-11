@@ -6,3 +6,6 @@ tmp/
 
 # environment file
 .env
+
+# storage directory
+storage/
