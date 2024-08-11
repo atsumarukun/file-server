@@ -19,12 +19,14 @@ type FolderUsecase interface {
 type folderUsecase struct {
 	db                   *gorm.DB
 	folderInfoRepository repository.FolderInfoRepository
+	folderBodyrepository repository.FolderBodyRepository
 }
 
-func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRepository) FolderUsecase {
+func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRepository, folderBodyRepository repository.FolderBodyRepository) FolderUsecase {
 	return &folderUsecase{
 		db:                   db,
 		folderInfoRepository: folderInfoRepository,
+		folderBodyrepository: folderBodyRepository,
 	}
 }
 
@@ -40,12 +42,18 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 		}
 
 		path := parentFolder.GetPath() + name + "/"
-		folder, err = entity.NewFolderInfo(&parentFolderID, name, path, isHide)
+
+		folderInfo, err := entity.NewFolderInfo(&parentFolderID, name, path, isHide)
 		if err != nil {
 			return err
 		}
 
-		folder, err = fu.folderInfoRepository.Create(tx, folder)
+		folderBody := entity.NewFolderBody(path)
+		if err := fu.folderBodyrepository.Create(folderBody); err != nil {
+			return err
+		}
+
+		folder, err = fu.folderInfoRepository.Create(tx, folderInfo)
 		return err
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
