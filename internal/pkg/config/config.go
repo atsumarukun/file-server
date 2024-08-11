@@ -8,6 +8,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const (
+	STORAGE_PATH = "storage"
+)
+
 var (
 	API_PORT  int
 	MYSQL_DSN string
