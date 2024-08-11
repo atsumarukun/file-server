@@ -10,8 +10,8 @@ import (
 )
 
 func route(r *gin.Engine, db *gorm.DB) {
-	folderRepository := infrastructure.NewFolderInfrastructure()
-	folderUsecase := usecase.NewFolderUsecase(db, folderRepository)
+	folderInfoRepository := infrastructure.NewFolderInfoInfrastructure()
+	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository)
 	folderHandler := handler.NewFolderHandler(folderUsecase)
 
 	folders := r.Group("/folders")

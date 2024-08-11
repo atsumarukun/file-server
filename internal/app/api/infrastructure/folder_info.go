@@ -8,13 +8,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type folderInfrastructure struct{}
+type folderInfoInfrastructure struct{}
 
-func NewFolderInfrastructure() repository.FolderRepository {
-	return &folderInfrastructure{}
+func NewFolderInfoInfrastructure() repository.FolderInfoRepository {
+	return &folderInfoInfrastructure{}
 }
 
-func (fi *folderInfrastructure) Create(db *gorm.DB, folder *entity.Folder) (*entity.Folder, error) {
+func (fi *folderInfoInfrastructure) Create(db *gorm.DB, folder *entity.FolderInfo) (*entity.FolderInfo, error) {
 	folderModel := fi.entityToModel(folder)
 	if err := db.Create(folderModel).Error; err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func (fi *folderInfrastructure) Create(db *gorm.DB, folder *entity.Folder) (*ent
 	return fi.modelToEntity(folderModel)
 }
 
-func (fi *folderInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.Folder, error) {
+func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -34,7 +34,7 @@ func (fi *folderInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.Fold
 	return fi.modelToEntity(&folderModel)
 }
 
-func (fi *folderInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, path string) (*entity.Folder, error) {
+func (fi *folderInfoInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, path string) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.Preload("Folders").First(&folderModel, "path = ?", path).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -46,7 +46,7 @@ func (fi *folderInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, path 
 	return fi.modelToEntity(&folderModel)
 }
 
-func (fi *folderInfrastructure) entityToModel(folder *entity.Folder) *model.FolderModel {
+func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
 	var folders []model.FolderModel
 	if folder.GetFolders() != nil {
 		folders = make([]model.FolderModel, 0)
@@ -66,10 +66,10 @@ func (fi *folderInfrastructure) entityToModel(folder *entity.Folder) *model.Fold
 	}
 }
 
-func (fi *folderInfrastructure) modelToEntity(folder *model.FolderModel) (*entity.Folder, error) {
-	var folders []entity.Folder
+func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*entity.FolderInfo, error) {
+	var folders []entity.FolderInfo
 	if folder.Folders != nil {
-		folders = make([]entity.Folder, 0)
+		folders = make([]entity.FolderInfo, 0)
 		for _, v := range folder.Folders {
 			f, err := fi.modelToEntity(&v)
 			if err != nil {
@@ -78,7 +78,7 @@ func (fi *folderInfrastructure) modelToEntity(folder *model.FolderModel) (*entit
 			folders = append(folders, *f)
 		}
 	}
-	folderEntity := &entity.Folder{}
+	folderEntity := &entity.FolderInfo{}
 	folderEntity.SetID(folder.ID)
 	folderEntity.SetParentFolderID(folder.ParentFolderID)
 	if err := folderEntity.SetName(folder.Name); err != nil {

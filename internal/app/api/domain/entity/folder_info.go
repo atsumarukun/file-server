@@ -6,19 +6,19 @@ import (
 	"time"
 )
 
-type Folder struct {
+type FolderInfo struct {
 	id             int64
 	parentFolderID *int64
 	name           string
 	path           string
 	isHide         bool
-	folders        []Folder
+	folders        []FolderInfo
 	createdAt      time.Time
 	updatedAt      time.Time
 }
 
-func NewFolder(parentFolderID *int64, name string, path string, isHide bool) (*Folder, error) {
-	folder := &Folder{}
+func NewFolderInfo(parentFolderID *int64, name string, path string, isHide bool) (*FolderInfo, error) {
+	folder := &FolderInfo{}
 
 	folder.SetParentFolderID(parentFolderID)
 	folder.SetIsHide(isHide)
@@ -32,27 +32,27 @@ func NewFolder(parentFolderID *int64, name string, path string, isHide bool) (*F
 	return folder, nil
 }
 
-func (f *Folder) GetID() int64 {
+func (f *FolderInfo) GetID() int64 {
 	return f.id
 }
 
-func (f *Folder) SetID(id int64) {
+func (f *FolderInfo) SetID(id int64) {
 	f.id = id
 }
 
-func (f *Folder) GetParentFolderID() *int64 {
+func (f *FolderInfo) GetParentFolderID() *int64 {
 	return f.parentFolderID
 }
 
-func (f *Folder) SetParentFolderID(parentFolderID *int64) {
+func (f *FolderInfo) SetParentFolderID(parentFolderID *int64) {
 	f.parentFolderID = parentFolderID
 }
 
-func (f *Folder) GetName() string {
+func (f *FolderInfo) GetName() string {
 	return f.name
 }
 
-func (f *Folder) SetName(name string) error {
+func (f *FolderInfo) SetName(name string) error {
 	if 128 < len(name) {
 		return fmt.Errorf("set folder name: name is too long")
 	}
@@ -63,11 +63,11 @@ func (f *Folder) SetName(name string) error {
 	return nil
 }
 
-func (f *Folder) GetPath() string {
+func (f *FolderInfo) GetPath() string {
 	return f.path
 }
 
-func (f *Folder) SetPath(path string) error {
+func (f *FolderInfo) SetPath(path string) error {
 	if 255 < len(path) {
 		return fmt.Errorf("set folder path: path is too long")
 	}
@@ -75,34 +75,34 @@ func (f *Folder) SetPath(path string) error {
 	return nil
 }
 
-func (f *Folder) GetIsHide() bool {
+func (f *FolderInfo) GetIsHide() bool {
 	return f.isHide
 }
 
-func (f *Folder) SetIsHide(isHide bool) {
+func (f *FolderInfo) SetIsHide(isHide bool) {
 	f.isHide = isHide
 }
 
-func (f *Folder) GetFolders() []Folder {
+func (f *FolderInfo) GetFolders() []FolderInfo {
 	return f.folders
 }
 
-func (f *Folder) SetFolders(folders []Folder) {
+func (f *FolderInfo) SetFolders(folders []FolderInfo) {
 	f.folders = folders
 }
 
-func (f *Folder) GetCreatedAt() time.Time {
+func (f *FolderInfo) GetCreatedAt() time.Time {
 	return f.createdAt
 }
 
-func (f *Folder) SetCreatedAt(createdAt time.Time) {
+func (f *FolderInfo) SetCreatedAt(createdAt time.Time) {
 	f.createdAt = createdAt
 }
 
-func (f *Folder) GetUpdatedAt() time.Time {
+func (f *FolderInfo) GetUpdatedAt() time.Time {
 	return f.updatedAt
 }
 
-func (f *Folder) SetUpdatedAt(updatedAt time.Time) {
+func (f *FolderInfo) SetUpdatedAt(updatedAt time.Time) {
 	f.updatedAt = updatedAt
 }
