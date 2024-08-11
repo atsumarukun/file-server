@@ -17,5 +17,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 	folders := r.Group("/folders")
 	{
 		folders.POST("/", folderHandler.Create)
+		folders.GET("/*path", folderHandler.FindOne)
 	}
 }
