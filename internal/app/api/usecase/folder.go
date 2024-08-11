@@ -48,13 +48,13 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 			return err
 		}
 
-		folderBody := entity.NewFolderBody(path)
-		if err := fu.folderBodyrepository.Create(folderBody); err != nil {
+		folder, err = fu.folderInfoRepository.Create(tx, folderInfo)
+		if err != nil {
 			return err
 		}
 
-		folder, err = fu.folderInfoRepository.Create(tx, folderInfo)
-		return err
+		folderBody := entity.NewFolderBody(path)
+		return fu.folderBodyrepository.Create(folderBody)
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
 			return nil, apiError.NewError(http.StatusNotFound, err.Error())

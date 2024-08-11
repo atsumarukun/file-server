@@ -53,11 +53,14 @@ func (f *FolderInfo) GetName() string {
 }
 
 func (f *FolderInfo) SetName(name string) error {
+	var invalidStrings = []string{"\\", "/", ":", "*", "?", "\"", "<", ">", "|"}
+	for _, v := range invalidStrings {
+		if strings.Contains(name, v) {
+			return fmt.Errorf("set folder name: invalid name")
+		}
+	}
 	if 128 < len(name) {
 		return fmt.Errorf("set folder name: name is too long")
-	}
-	if strings.Contains(name, "/") {
-		return fmt.Errorf("set folder name: invalid name")
 	}
 	f.name = name
 	return nil
