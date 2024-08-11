@@ -12,6 +12,7 @@ import (
 
 type FolderHandler interface {
 	Create(*gin.Context)
+	FindOne(*gin.Context)
 }
 
 type folderHandler struct {
@@ -32,6 +33,18 @@ func (fh *folderHandler) Create(c *gin.Context) {
 	}
 
 	folderDTO, err := fh.usecase.Create(folder.ParentFolderID, folder.Name, folder.IsHide)
+	if err != nil {
+		c.JSON(err.Code, err.Message)
+		return
+	}
+
+	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+}
+
+func (fh *folderHandler) FindOne(c *gin.Context) {
+	path := c.Param("path")
+
+	folderDTO, err := fh.usecase.FindOne(path)
 	if err != nil {
 		c.JSON(err.Code, err.Message)
 		return
