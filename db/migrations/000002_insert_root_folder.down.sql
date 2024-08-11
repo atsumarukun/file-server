@@ -1,3 +1,1 @@
-DELETE FROM folders
-WHERE
-  path = "/";
+DELETE FROM folders;
