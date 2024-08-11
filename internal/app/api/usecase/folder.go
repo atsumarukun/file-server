@@ -58,12 +58,20 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 }
 
 func (fu *folderUsecase) entityToDTO(folder *entity.Folder) *dto.FolderDTO {
+	var folders []dto.FolderDTO
+	if folder.GetFolders() != nil {
+		folders = make([]dto.FolderDTO, 0)
+		for _, v := range folder.GetFolders() {
+			folders = append(folders, *fu.entityToDTO(&v))
+		}
+	}
 	return &dto.FolderDTO{
 		ID:             folder.GetID(),
 		ParentFolderID: folder.GetParentFolderID(),
 		Name:           folder.GetName(),
 		Path:           folder.GetPath(),
 		IsHide:         folder.GetIsHide(),
+		Folders:        folders,
 		CreatedAt:      folder.GetCreatedAt(),
 		UpdatedAt:      folder.GetUpdatedAt(),
 	}

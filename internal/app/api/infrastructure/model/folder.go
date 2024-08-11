@@ -12,6 +12,7 @@ type FolderModel struct {
 	Name           string
 	Path           string
 	IsHide         bool
+	Folders        []FolderModel `gorm:"foreignkey:ParentFolderID"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt

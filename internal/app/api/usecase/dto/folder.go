@@ -8,6 +8,7 @@ type FolderDTO struct {
 	Name           string
 	Path           string
 	IsHide         bool
+	Folders        []FolderDTO
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

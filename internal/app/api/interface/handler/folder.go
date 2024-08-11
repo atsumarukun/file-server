@@ -41,12 +41,20 @@ func (fh *folderHandler) Create(c *gin.Context) {
 }
 
 func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *response.FolderResponse {
+	var folders []response.FolderResponse
+	if folder.Folders != nil {
+		folders = make([]response.FolderResponse, 0)
+		for _, v := range folder.Folders {
+			folders = append(folders, *fh.dtoToResponse(&v))
+		}
+	}
 	return &response.FolderResponse{
 		ID:             folder.ID,
 		ParentFolderID: folder.ParentFolderID,
 		Name:           folder.Name,
 		Path:           folder.Path,
 		IsHide:         folder.IsHide,
+		Folders:        folders,
 		CreatedAt:      folder.CreatedAt,
 		UpdatedAt:      folder.UpdatedAt,
 	}

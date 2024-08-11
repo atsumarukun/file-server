@@ -12,6 +12,7 @@ type Folder struct {
 	name           string
 	path           string
 	isHide         bool
+	folders        []Folder
 	createdAt      time.Time
 	updatedAt      time.Time
 }
@@ -80,6 +81,14 @@ func (f *Folder) GetIsHide() bool {
 
 func (f *Folder) SetIsHide(isHide bool) {
 	f.isHide = isHide
+}
+
+func (f *Folder) GetFolders() []Folder {
+	return f.folders
+}
+
+func (f *Folder) SetFolders(folders []Folder) {
+	f.folders = folders
 }
 
 func (f *Folder) GetCreatedAt() time.Time {
