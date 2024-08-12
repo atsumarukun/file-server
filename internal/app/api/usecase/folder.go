@@ -131,9 +131,9 @@ func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, *apiError.Error) 
 func (fu *folderUsecase) entityToDTO(folder *entity.FolderInfo) *dto.FolderDTO {
 	var folders []dto.FolderDTO
 	if folder.GetFolders() != nil {
-		folders = make([]dto.FolderDTO, 0)
-		for _, v := range folder.GetFolders() {
-			folders = append(folders, *fu.entityToDTO(&v))
+		folders = make([]dto.FolderDTO, len(folder.GetFolders()))
+		for i, v := range folder.GetFolders() {
+			folders[i] = *fu.entityToDTO(&v)
 		}
 	}
 	return &dto.FolderDTO{

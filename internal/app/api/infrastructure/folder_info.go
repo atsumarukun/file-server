@@ -81,9 +81,9 @@ func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id int64
 func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
 	var folders []model.FolderModel
 	if folder.GetFolders() != nil {
-		folders = make([]model.FolderModel, 0)
-		for _, v := range folder.GetFolders() {
-			folders = append(folders, *fi.entityToModel(&v))
+		folders = make([]model.FolderModel, len(folder.GetFolders()))
+		for i, v := range folder.GetFolders() {
+			folders[i] = *fi.entityToModel(&v)
 		}
 	}
 	return &model.FolderModel{
@@ -109,13 +109,13 @@ func (fi *folderInfoInfrastructure) entitiesToModels(folders []entity.FolderInfo
 func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*entity.FolderInfo, error) {
 	var folders []entity.FolderInfo
 	if folder.Folders != nil {
-		folders = make([]entity.FolderInfo, 0)
-		for _, v := range folder.Folders {
+		folders = make([]entity.FolderInfo, len(folder.Folders))
+		for i, v := range folder.Folders {
 			f, err := fi.modelToEntity(&v)
 			if err != nil {
 				return nil, err
 			}
-			folders = append(folders, *f)
+			folders[i] = *f
 		}
 	}
 	folderEntity := &entity.FolderInfo{}

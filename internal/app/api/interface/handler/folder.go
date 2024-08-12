@@ -80,9 +80,9 @@ func (fh *folderHandler) FindOne(c *gin.Context) {
 func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *response.FolderResponse {
 	var folders []response.FolderResponse
 	if folder.Folders != nil {
-		folders = make([]response.FolderResponse, 0)
-		for _, v := range folder.Folders {
-			folders = append(folders, *fh.dtoToResponse(&v))
+		folders = make([]response.FolderResponse, len(folder.Folders))
+		for i, v := range folder.Folders {
+			folders[i] = *fh.dtoToResponse(&v)
 		}
 	}
 	return &response.FolderResponse{
