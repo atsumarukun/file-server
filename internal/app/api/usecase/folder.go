@@ -128,11 +128,15 @@ func (fu *folderUsecase) Remove(id int64) *apiError.Error {
 			return apiError.ErrNotFound
 		}
 
-		if err := fu.folderInfoService.Remove(tx, folderInfo); err != nil {
+		lowerFolders, err := fu.folderInfoRepository.FindByIDNotAndPathLike(tx, folderInfo.GetID(), folderInfo.GetPath())
+		if err != nil {
 			return err
 		}
 
-		return fu.folderInfoRepository.Remove(tx, folderInfo)
+		removeFolders := []entity.FolderInfo{*folderInfo}
+		removeFolders = append(removeFolders, lowerFolders...)
+
+		return fu.folderInfoRepository.Removes(tx, removeFolders)
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
 			return apiError.NewError(http.StatusNotFound, err.Error())
