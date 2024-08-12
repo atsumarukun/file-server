@@ -22,5 +22,5 @@ func (fi *folderBodyInfrastructure) Create(folder *entity.FolderBody) error {
 }
 
 func (fi *folderBodyInfrastructure) Update(old *entity.FolderBody, new *entity.FolderBody) error {
-	return os.Rename(old.GetPath(), new.GetPath())
+	return os.Rename(config.STORAGE_PATH+old.GetPath(), config.STORAGE_PATH+new.GetPath())
 }
