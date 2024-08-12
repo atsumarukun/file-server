@@ -12,6 +12,7 @@ import (
 type FolderInfoService interface {
 	Exists(*gorm.DB, *entity.FolderInfo) error
 	Move(*gorm.DB, *entity.FolderInfo, string) error
+	Remove(*gorm.DB, *entity.FolderInfo) error
 }
 
 type folderInfoService struct {
@@ -49,9 +50,14 @@ func (fs *folderInfoService) Move(db *gorm.DB, folder *entity.FolderInfo, path s
 	for i := 0; i < len(lowerFolders); i++ {
 		lowerFolders[i].SetPath(strings.Replace(lowerFolders[i].GetPath(), oldPath, path, 1))
 	}
-	if _, err := fs.folderInfoRepository.Saves(db, lowerFolders); err != nil {
+	_, err = fs.folderInfoRepository.Saves(db, lowerFolders)
+	return err
+}
+
+func (fs *folderInfoService) Remove(db *gorm.DB, folder *entity.FolderInfo) error {
+	lowerFolders, err := fs.folderInfoRepository.FindByIDNotAndPathLike(db, folder.GetID(), folder.GetPath())
+	if err != nil {
 		return err
 	}
-
-	return nil
+	return fs.folderInfoRepository.Removes(db, lowerFolders)
 }
