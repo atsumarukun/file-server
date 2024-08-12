@@ -5,3 +5,8 @@ type CreateFolderRequest struct {
 	Name           string `json:"name"`
 	IsHide         bool   `json:"is_hide"`
 }
+
+type UpdateFolderRequest struct {
+	Name   string `json:"name"`
+	IsHide bool   `json:"is_hide"`
+}

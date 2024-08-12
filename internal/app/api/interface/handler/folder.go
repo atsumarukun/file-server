@@ -6,12 +6,14 @@ import (
 	"file-server/internal/app/api/usecase"
 	"file-server/internal/app/api/usecase/dto"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type FolderHandler interface {
 	Create(*gin.Context)
+	Update(*gin.Context)
 	FindOne(*gin.Context)
 }
 
@@ -32,9 +34,31 @@ func (fh *folderHandler) Create(c *gin.Context) {
 		return
 	}
 
-	folderDTO, err := fh.usecase.Create(folder.ParentFolderID, folder.Name, folder.IsHide)
+	folderDTO, apiErr := fh.usecase.Create(folder.ParentFolderID, folder.Name, folder.IsHide)
+	if apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
+		return
+	}
+
+	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+}
+
+func (fh *folderHandler) Update(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(err.Code, err.Message)
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var folder request.UpdateFolderRequest
+	if err := c.ShouldBindJSON(&folder); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	folderDTO, apiErr := fh.usecase.Update(id, folder.Name, folder.IsHide)
+	if apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
 		return
 	}
 
@@ -44,9 +68,9 @@ func (fh *folderHandler) Create(c *gin.Context) {
 func (fh *folderHandler) FindOne(c *gin.Context) {
 	path := c.Param("path")
 
-	folderDTO, err := fh.usecase.FindOne(path)
-	if err != nil {
-		c.JSON(err.Code, err.Message)
+	folderDTO, apiErr := fh.usecase.FindOne(path)
+	if apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
 		return
 	}
 
