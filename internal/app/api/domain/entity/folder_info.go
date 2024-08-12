@@ -109,3 +109,7 @@ func (f *FolderInfo) GetUpdatedAt() time.Time {
 func (f *FolderInfo) SetUpdatedAt(updatedAt time.Time) {
 	f.updatedAt = updatedAt
 }
+
+func (f *FolderInfo) Move(oldPath string, newPath string) error {
+	return f.SetPath(strings.Replace(f.path, oldPath, newPath, 1))
+}
