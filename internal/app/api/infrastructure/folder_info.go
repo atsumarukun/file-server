@@ -75,7 +75,7 @@ func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id int64
 	var folderModels []model.FolderModel
 	if err := db.Find(&folderModels, "id <> ? AND path LIKE ?", id, path+"%").Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, nil
+			return make([]entity.FolderInfo, 0), nil
 		} else {
 			return nil, err
 		}
