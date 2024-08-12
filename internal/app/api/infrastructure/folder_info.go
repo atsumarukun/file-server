@@ -35,6 +35,11 @@ func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInf
 	return db.Delete(folderModel).Error
 }
 
+func (fi *folderInfoInfrastructure) Removes(db *gorm.DB, folders []entity.FolderInfo) error {
+	folderModels := fi.entitiesToModels(folders)
+	return db.Delete(folderModels).Error
+}
+
 func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
