@@ -20,3 +20,7 @@ func (fi *folderBodyInfrastructure) Create(folder *entity.FolderBody) error {
 	}
 	return os.MkdirAll(config.STORAGE_PATH+folder.GetPath(), info.Mode())
 }
+
+func (fi *folderBodyInfrastructure) Update(old *entity.FolderBody, new *entity.FolderBody) error {
+	return os.Rename(old.GetPath(), new.GetPath())
+}
