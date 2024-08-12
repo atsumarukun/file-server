@@ -48,7 +48,7 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 			return err
 		}
 
-		folder, err = fu.folderInfoRepository.Create(tx, folderInfo)
+		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
 		if err != nil {
 			return err
 		}

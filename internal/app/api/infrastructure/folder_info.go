@@ -14,7 +14,7 @@ func NewFolderInfoInfrastructure() repository.FolderInfoRepository {
 	return &folderInfoInfrastructure{}
 }
 
-func (fi *folderInfoInfrastructure) Create(db *gorm.DB, folder *entity.FolderInfo) (*entity.FolderInfo, error) {
+func (fi *folderInfoInfrastructure) Save(db *gorm.DB, folder *entity.FolderInfo) (*entity.FolderInfo, error) {
 	folderModel := fi.entityToModel(folder)
 	if err := db.Create(folderModel).Error; err != nil {
 		return nil, err
