@@ -42,6 +42,18 @@ func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.
 	return fi.modelToEntity(&folderModel)
 }
 
+func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FolderInfo, error) {
+	var folderModel model.FolderModel
+	if err := db.First(&folderModel, "path = ?", path).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return fi.modelToEntity(&folderModel)
+}
+
 func (fi *folderInfoInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, path string) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.Preload("Folders").First(&folderModel, "path = ?", path).Error; err != nil {
