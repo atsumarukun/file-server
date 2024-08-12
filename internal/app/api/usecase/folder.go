@@ -95,21 +95,7 @@ func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.Folder
 			oldPath := folderInfo.GetPath()
 			path := oldPath[:strings.LastIndex(oldPath, oldName)] + name + "/"
 
-			folderInfo.SetPath(path)
-			if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
-				return err
-			}
-
-			lowerFolders, err := fu.folderInfoRepository.FindByIDNotAndPathLike(tx, folderInfo.GetID(), oldPath)
-			if err != nil {
-				return err
-			}
-			for i := 0; i < len(lowerFolders); i++ {
-				lowerFolders[i].SetPath(strings.Replace(lowerFolders[i].GetPath(), oldPath, path, 1))
-			}
-			if _, err := fu.folderInfoRepository.Saves(tx, lowerFolders); err != nil {
-				return err
-			}
+			fu.folderInfoService.Move(tx, folderInfo, path)
 
 			oldFolderBody := entity.NewFolderBody(oldPath)
 			newFolderBody := entity.NewFolderBody(path)
