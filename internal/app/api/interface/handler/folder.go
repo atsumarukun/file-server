@@ -14,6 +14,7 @@ import (
 type FolderHandler interface {
 	Create(*gin.Context)
 	Update(*gin.Context)
+	Remove(*gin.Context)
 	FindOne(*gin.Context)
 }
 
@@ -63,6 +64,21 @@ func (fh *folderHandler) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+}
+
+func (fh *folderHandler) Remove(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if apiErr := fh.usecase.Remove(id); apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
 
 func (fh *folderHandler) FindOne(c *gin.Context) {
