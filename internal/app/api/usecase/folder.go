@@ -16,6 +16,7 @@ import (
 type FolderUsecase interface {
 	Create(int64, string, bool) (*dto.FolderDTO, *apiError.Error)
 	Update(int64, string, bool) (*dto.FolderDTO, *apiError.Error)
+	Remove(int64) *apiError.Error
 	FindOne(string) (*dto.FolderDTO, *apiError.Error)
 }
 
@@ -115,6 +116,32 @@ func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.Folder
 	}
 
 	return fu.entityToDTO(folder), nil
+}
+
+func (fu *folderUsecase) Remove(id int64) *apiError.Error {
+	if err := fu.db.Transaction(func(tx *gorm.DB) error {
+		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
+		if err != nil {
+			return err
+		}
+		if folderInfo == nil {
+			return apiError.ErrNotFound
+		}
+
+		if err := fu.folderInfoService.Remove(tx, folderInfo); err != nil {
+			return err
+		}
+
+		return fu.folderInfoRepository.Remove(tx, folderInfo)
+	}); err != nil {
+		if errors.Is(err, apiError.ErrNotFound) {
+			return apiError.NewError(http.StatusNotFound, err.Error())
+		} else {
+			return apiError.NewError(http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	return nil
 }
 
 func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, *apiError.Error) {
