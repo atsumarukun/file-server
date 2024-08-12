@@ -4,6 +4,7 @@ import (
 	"errors"
 	"file-server/internal/app/api/domain/entity"
 	"file-server/internal/app/api/domain/repository"
+	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/usecase/dto"
 	apiError "file-server/internal/pkg/errors"
 	"net/http"
@@ -22,13 +23,15 @@ type folderUsecase struct {
 	db                   *gorm.DB
 	folderInfoRepository repository.FolderInfoRepository
 	folderBodyRepository repository.FolderBodyRepository
+	folderInfoService    service.FolderInfoService
 }
 
-func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRepository, folderBodyRepository repository.FolderBodyRepository) FolderUsecase {
+func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRepository, folderBodyRepository repository.FolderBodyRepository, folderInfoService service.FolderInfoService) FolderUsecase {
 	return &folderUsecase{
 		db:                   db,
 		folderInfoRepository: folderInfoRepository,
 		folderBodyRepository: folderBodyRepository,
+		folderInfoService:    folderInfoService,
 	}
 }
 
@@ -47,6 +50,10 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 
 		folderInfo, err := entity.NewFolderInfo(&parentFolderID, name, path, isHide)
 		if err != nil {
+			return err
+		}
+
+		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
 			return err
 		}
 
@@ -89,6 +96,9 @@ func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.Folder
 			path := oldPath[:strings.LastIndex(oldPath, oldName)] + name + "/"
 
 			folderInfo.SetPath(path)
+			if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
+				return err
+			}
 
 			lowerFolders, err := fu.folderInfoRepository.FindByIDNotAndPathLike(tx, folderInfo.GetID(), oldPath)
 			if err != nil {

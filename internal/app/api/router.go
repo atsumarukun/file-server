@@ -1,6 +1,7 @@
 package api
 
 import (
+	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/infrastructure"
 	"file-server/internal/app/api/interface/handler"
 	"file-server/internal/app/api/usecase"
@@ -12,7 +13,8 @@ import (
 func route(r *gin.Engine, db *gorm.DB) {
 	folderInfoRepository := infrastructure.NewFolderInfoInfrastructure()
 	folderBodyRepository := infrastructure.NewFolderBodyInfrastructure()
-	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository)
+	folderInfoService := service.NewFolderInfoService(folderInfoRepository)
+	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
 	folderHandler := handler.NewFolderHandler(folderUsecase)
 
 	folders := r.Group("/folders")
