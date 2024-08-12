@@ -9,7 +9,6 @@ import (
 type FolderInfoRepository interface {
 	Save(*gorm.DB, *entity.FolderInfo) (*entity.FolderInfo, error)
 	Saves(*gorm.DB, []entity.FolderInfo) ([]entity.FolderInfo, error)
-	Remove(*gorm.DB, *entity.FolderInfo) error
 	Removes(*gorm.DB, []entity.FolderInfo) error
 	FindOneByID(*gorm.DB, int64) (*entity.FolderInfo, error)
 	FindOneByPath(*gorm.DB, string) (*entity.FolderInfo, error)
