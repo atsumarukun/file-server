@@ -19,5 +19,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 	{
 		folders.POST("/", folderHandler.Create)
 		folders.GET("/*path", folderHandler.FindOne)
+		folders.PUT("/:id", folderHandler.Update)
 	}
 }
