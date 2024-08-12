@@ -46,6 +46,18 @@ func (fi *folderInfoInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, p
 	return fi.modelToEntity(&folderModel)
 }
 
+func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id int64, path string) ([]entity.FolderInfo, error) {
+	var folderModels []model.FolderModel
+	if err := db.Find(&folderModels, "id <> ? AND path LIKE ?", id, path+"%").Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return fi.modelToEntities(folderModels)
+}
+
 func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
 	var folders []model.FolderModel
 	if folder.GetFolders() != nil {
@@ -92,4 +104,16 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 	folderEntity.SetCreatedAt(folder.CreatedAt)
 	folderEntity.SetUpdatedAt(folder.UpdatedAt)
 	return folderEntity, nil
+}
+
+func (fi *folderInfoInfrastructure) modelToEntities(folders []model.FolderModel) ([]entity.FolderInfo, error) {
+	folderEntities := make([]entity.FolderInfo, len(folders))
+	for i, folder := range folders {
+		folderEntity, err := fi.modelToEntity(&folder)
+		if err != nil {
+			return nil, err
+		}
+		folderEntities[i] = *folderEntity
+	}
+	return folderEntities, nil
 }
