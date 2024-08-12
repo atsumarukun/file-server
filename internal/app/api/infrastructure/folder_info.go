@@ -16,10 +16,18 @@ func NewFolderInfoInfrastructure() repository.FolderInfoRepository {
 
 func (fi *folderInfoInfrastructure) Save(db *gorm.DB, folder *entity.FolderInfo) (*entity.FolderInfo, error) {
 	folderModel := fi.entityToModel(folder)
-	if err := db.Create(folderModel).Error; err != nil {
+	if err := db.Save(folderModel).Error; err != nil {
 		return nil, err
 	}
 	return fi.modelToEntity(folderModel)
+}
+
+func (fi *folderInfoInfrastructure) Saves(db *gorm.DB, folders []entity.FolderInfo) ([]entity.FolderInfo, error) {
+	folderModels := fi.entitiesToModels(folders)
+	if err := db.Save(folderModels).Error; err != nil {
+		return nil, err
+	}
+	return fi.modelsToEntities(folderModels)
 }
 
 func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
@@ -55,7 +63,7 @@ func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id int64
 			return nil, err
 		}
 	}
-	return fi.modelToEntities(folderModels)
+	return fi.modelsToEntities(folderModels)
 }
 
 func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
@@ -76,6 +84,14 @@ func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *mo
 		CreatedAt:      folder.GetCreatedAt(),
 		UpdatedAt:      folder.GetUpdatedAt(),
 	}
+}
+
+func (fi *folderInfoInfrastructure) entitiesToModels(folders []entity.FolderInfo) []model.FolderModel {
+	folderModels := make([]model.FolderModel, len(folders))
+	for i, folder := range folders {
+		folderModels[i] = *fi.entityToModel(&folder)
+	}
+	return folderModels
 }
 
 func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*entity.FolderInfo, error) {
@@ -106,7 +122,7 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 	return folderEntity, nil
 }
 
-func (fi *folderInfoInfrastructure) modelToEntities(folders []model.FolderModel) ([]entity.FolderInfo, error) {
+func (fi *folderInfoInfrastructure) modelsToEntities(folders []model.FolderModel) ([]entity.FolderInfo, error) {
 	folderEntities := make([]entity.FolderInfo, len(folders))
 	for i, folder := range folders {
 		folderEntity, err := fi.modelToEntity(&folder)
