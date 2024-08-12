@@ -30,6 +30,11 @@ func (fi *folderInfoInfrastructure) Saves(db *gorm.DB, folders []entity.FolderIn
 	return fi.modelsToEntities(folderModels)
 }
 
+func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInfo) error {
+	folderModel := fi.entityToModel(folder)
+	return db.Delete(folderModel).Error
+}
+
 func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
