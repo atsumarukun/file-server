@@ -185,7 +185,7 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 		}
 
 		oldPath := folderInfo.GetPath()
-		path := parentFolder.GetPath() + folder.GetName() + "/"
+		path := parentFolder.GetPath() + folderInfo.GetName() + "/"
 		folderInfo.SetPath(path)
 
 		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
@@ -206,7 +206,13 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 		}
 
 		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
-		return err
+		if err != nil {
+			return err
+		}
+
+		oldFolderBody := entity.NewFolderBody(oldPath)
+		newFolderBody := entity.NewFolderBody(path)
+		return fu.folderBodyRepository.Update(oldFolderBody, newFolderBody)
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
 			return nil, apiError.NewError(http.StatusNotFound, err.Error())
