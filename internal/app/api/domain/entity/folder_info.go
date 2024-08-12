@@ -74,6 +74,9 @@ func (f *FolderInfo) SetPath(path string) error {
 	if 255 < len(path) {
 		return fmt.Errorf("set folder path: path is too long")
 	}
+	if path[len(path)-1:] != "/" {
+		return fmt.Errorf("set folder path: invalid path")
+	}
 	f.path = path
 	return nil
 }
