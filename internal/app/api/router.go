@@ -23,5 +23,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 		folders.GET("/*path", folderHandler.FindOne)
 		folders.PUT("/:id", folderHandler.Update)
 		folders.DELETE("/:id", folderHandler.Remove)
+		folders.PUT("/:id/move", folderHandler.Move)
 	}
 }
