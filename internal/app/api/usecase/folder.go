@@ -7,6 +7,7 @@ import (
 	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/usecase/dto"
 	apiError "file-server/internal/pkg/errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -185,6 +186,11 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 		}
 
 		oldPath := folderInfo.GetPath()
+
+		if strings.Contains(parentFolder.GetPath(), oldPath) {
+			return fmt.Errorf("cannot move to lower directory")
+		}
+
 		path := parentFolder.GetPath() + folderInfo.GetName() + "/"
 		folderInfo.SetPath(path)
 
