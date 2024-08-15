@@ -97,22 +97,8 @@ func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.Folder
 		if name != oldName {
 			oldPath := folderInfo.GetPath()
 			path := oldPath[:strings.LastIndex(oldPath, oldName)] + name + "/"
-			folderInfo.SetPath(path)
 
-			if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
-				return err
-			}
-
-			lowerFolders, err := fu.folderInfoRepository.FindByIDNotAndPathLike(tx, folderInfo.GetID(), oldPath)
-			if err != nil {
-				return err
-			}
-			for i := 0; i < len(lowerFolders); i++ {
-				if err := lowerFolders[i].Move(oldPath, path); err != nil {
-					return err
-				}
-			}
-			if _, err := fu.folderInfoRepository.Saves(tx, lowerFolders); err != nil {
+			if err := fu.folderInfoService.Move(tx, folderInfo, path); err != nil {
 				return err
 			}
 
@@ -192,33 +178,18 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 		}
 
 		path := parentFolder.GetPath() + folderInfo.GetName() + "/"
-		folderInfo.SetPath(path)
-
-		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
-			return err
-		}
-
-		lowerFolders, err := fu.folderInfoRepository.FindByIDNotAndPathLike(tx, folderInfo.GetID(), oldPath)
-		if err != nil {
-			return err
-		}
-		for i := 0; i < len(lowerFolders); i++ {
-			if err := lowerFolders[i].Move(oldPath, path); err != nil {
-				return err
-			}
-		}
-		if _, err := fu.folderInfoRepository.Saves(tx, lowerFolders); err != nil {
-			return err
-		}
-
-		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
-		if err != nil {
+		if err := fu.folderInfoService.Move(tx, folderInfo, path); err != nil {
 			return err
 		}
 
 		oldFolderBody := entity.NewFolderBody(oldPath)
 		newFolderBody := entity.NewFolderBody(path)
-		return fu.folderBodyRepository.Update(oldFolderBody, newFolderBody)
+		if err := fu.folderBodyRepository.Update(oldFolderBody, newFolderBody); err != nil {
+			return err
+		}
+
+		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
+		return err
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
 			return nil, apiError.NewError(http.StatusNotFound, err.Error())

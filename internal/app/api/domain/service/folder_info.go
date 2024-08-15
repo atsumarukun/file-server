@@ -10,6 +10,7 @@ import (
 
 type FolderInfoService interface {
 	Exists(*gorm.DB, *entity.FolderInfo) error
+	Move(*gorm.DB, *entity.FolderInfo, string) error
 }
 
 type folderInfoService struct {
@@ -30,4 +31,25 @@ func (fs *folderInfoService) Exists(db *gorm.DB, folder *entity.FolderInfo) erro
 		return fmt.Errorf("%s is already exists", path)
 	}
 	return nil
+}
+
+func (fs *folderInfoService) Move(db *gorm.DB, folder *entity.FolderInfo, path string) error {
+	oldPath := folder.GetPath()
+	folder.SetPath(path)
+
+	if err := fs.Exists(db, folder); err != nil {
+		return err
+	}
+
+	lowerFolders, err := fs.folderInfoRepository.FindByIDNotAndPathLike(db, folder.GetID(), oldPath)
+	if err != nil {
+		return err
+	}
+	for i := 0; i < len(lowerFolders); i++ {
+		if err := lowerFolders[i].Move(oldPath, path); err != nil {
+			return err
+		}
+	}
+	_, err = fs.folderInfoRepository.Saves(db, lowerFolders)
+	return err
 }
