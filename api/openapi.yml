@@ -532,7 +532,10 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/folder"
+            type: object
+            properties:
+              parent_folder_id:
+                $ref: "#/components/schemas/folder/properties/parent_folder_id"
     move_folder:
       description: "フォルダ移動"
       required: true
@@ -579,14 +582,10 @@ components:
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: "#/components/schemas/file"
-              - type: object
-                properties:
-                  type:
-                    readOnly: true
-                  files:
-                    readOnly: true
+            type: object
+            properties:
+              folder_id:
+                $ref: "#/components/schemas/file/properties/folder_id"
     move_file:
       description: "ファイル移動"
       required: true
