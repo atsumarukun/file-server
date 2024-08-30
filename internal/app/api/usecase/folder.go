@@ -65,8 +65,7 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 			return err
 		}
 
-		folderBody := entity.NewFolderBody(path)
-		return fu.folderBodyRepository.Create(folderBody)
+		return fu.folderBodyRepository.Create(path)
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
 			return nil, apiError.NewError(http.StatusNotFound, err.Error())
@@ -102,9 +101,7 @@ func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.Folder
 				return err
 			}
 
-			oldFolderBody := entity.NewFolderBody(oldPath)
-			newFolderBody := entity.NewFolderBody(path)
-			if err := fu.folderBodyRepository.Update(oldFolderBody, newFolderBody); err != nil {
+			if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {
 				return err
 			}
 		}
@@ -182,9 +179,7 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 			return err
 		}
 
-		oldFolderBody := entity.NewFolderBody(oldPath)
-		newFolderBody := entity.NewFolderBody(path)
-		if err := fu.folderBodyRepository.Update(oldFolderBody, newFolderBody); err != nil {
+		if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {
 			return err
 		}
 
