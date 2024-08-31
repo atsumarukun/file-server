@@ -77,9 +77,6 @@ func (f *FileInfo) SetPath(path string) error {
 	if 255 < len(path) {
 		return fmt.Errorf("set file path: path is too long")
 	}
-	if path[len(path)-1:] != "/" {
-		return fmt.Errorf("set file path: invalid path")
-	}
 	f.path = path
 	return nil
 }
@@ -89,6 +86,9 @@ func (f *FileInfo) GetMimeType() string {
 }
 
 func (f *FileInfo) SetMimeType(mimeType string) error {
+	if !strings.Contains(mimeType, "/") {
+		return fmt.Errorf("set file name: invalid name")
+	}
 	if 64 < len(mimeType) {
 		return fmt.Errorf("set file MIME type: MIME type is too long")
 	}

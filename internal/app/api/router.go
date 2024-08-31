@@ -26,4 +26,15 @@ func route(r *gin.Engine, db *gorm.DB) {
 		folders.PUT("/:id/move", folderHandler.Move)
 		folders.POST("/:id/copy", folderHandler.Copy)
 	}
+
+	fileInfoRepository := infrastructure.NewFileInfoInfrastructure()
+	fileBodyRepository := infrastructure.NewFileBodyInfrastructure()
+	fileInfoService := service.NewFileInfoService(fileInfoRepository)
+	fileUsecase := usecase.NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
+	fileHandler := handler.NewFileHandler(fileUsecase)
+
+	files := r.Group("/files")
+	{
+		files.POST("/", fileHandler.Create)
+	}
 }

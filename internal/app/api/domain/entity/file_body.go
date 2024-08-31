@@ -5,6 +5,15 @@ type FileBody struct {
 	body []byte
 }
 
+func NewFileBody(path string, body []byte) *FileBody {
+	file := &FileBody{}
+
+	file.SetPath(path)
+	file.SetBody(body)
+
+	return file
+}
+
 func (f *FileBody) GetPath() string {
 	return f.path
 }
