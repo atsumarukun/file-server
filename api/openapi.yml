@@ -173,16 +173,16 @@ paths:
         - BearerAuth: []
   /files:
     post:
-      summary: "複数ファイルを作成"
-      description: "pathで指定されたフォルダに複数ファイルを作成."
+      summary: "ファイルを作成"
+      description: "pathで指定されたフォルダにファイルを作成."
       tags:
         - "file"
       requestBody:
-        $ref: "#/components/requestBodies/create_files"
+        $ref: "#/components/requestBodies/create_file"
       responses:
         201:
           description: "成功"
-          $ref: "#/components/responses/files"
+          $ref: "#/components/responses/file"
         404:
           description: "存在しないリソース"
           $ref: "#/components/responses/404"
@@ -450,11 +450,10 @@ components:
           type: boolean
           description: "非表示フラグ"
           example: false
-        files:
-          type: array
-          items:
-            type: string
-            format: binary
+        file:
+          type: string
+          format: binary
+          description: "ファイル"
           writeOnly: true
         created_at:
           $ref: "#/components/schemas/created_at"
@@ -467,7 +466,7 @@ components:
         - path
         - mime_type
         - is_hide
-        - files
+        - file
         - created_at
         - updated_at
         - deleted_at
@@ -546,8 +545,8 @@ components:
             properties:
               parent_folder_id:
                 $ref: "#/components/schemas/folder/properties/parent_folder_id"
-    create_files:
-      description: "複数ファイル作成"
+    create_file:
+      description: "ファイル作成"
       required: true
       content:
         multipart/form-data:
@@ -574,7 +573,7 @@ components:
                     readOnly: true
                   mime_type:
                     readOnly: true
-                  files:
+                  file:
                     readOnly: true
     copy_file:
       description: "ファイルコピー"
@@ -642,14 +641,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/file"
-    files:
-      description: "複数ファイル"
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/file"
     static_file:
       description: "静的ファイルID"
       content:
