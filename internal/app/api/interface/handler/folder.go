@@ -16,6 +16,7 @@ type FolderHandler interface {
 	Update(*gin.Context)
 	Remove(*gin.Context)
 	Move(*gin.Context)
+	Copy(*gin.Context)
 	FindOne(*gin.Context)
 }
 
@@ -96,6 +97,28 @@ func (fh *folderHandler) Move(c *gin.Context) {
 	}
 
 	folderDTO, apiErr := fh.usecase.Move(id, folder.ParentFolderID)
+	if apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
+		return
+	}
+
+	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+}
+
+func (fh *folderHandler) Copy(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var folder request.CopyFolderRequest
+	if err := c.ShouldBindJSON(&folder); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	folderDTO, apiErr := fh.usecase.Copy(id, folder.ParentFolderID)
 	if apiErr != nil {
 		c.JSON(apiErr.Code, apiErr.Message)
 		return

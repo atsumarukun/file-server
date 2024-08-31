@@ -19,6 +19,7 @@ type FolderUsecase interface {
 	Update(int64, string, bool) (*dto.FolderDTO, *apiError.Error)
 	Remove(int64) *apiError.Error
 	Move(int64, int64) (*dto.FolderDTO, *apiError.Error)
+	Copy(int64, int64) (*dto.FolderDTO, *apiError.Error)
 	FindOne(string) (*dto.FolderDTO, *apiError.Error)
 }
 
@@ -184,6 +185,45 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 		}
 
 		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
+		return err
+	}); err != nil {
+		if errors.Is(err, apiError.ErrNotFound) {
+			return nil, apiError.NewError(http.StatusNotFound, err.Error())
+		} else {
+			return nil, apiError.NewError(http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	return fu.entityToDTO(folder), nil
+}
+
+func (fu *folderUsecase) Copy(id int64, parentFolderID int64) (*dto.FolderDTO, *apiError.Error) {
+	var folder *entity.FolderInfo
+	if err := fu.db.Transaction(func(tx *gorm.DB) error {
+		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithRelationship(tx, id)
+		if err != nil {
+			return err
+		}
+		if sourceFolderInfo == nil {
+			return apiError.ErrNotFound
+		}
+
+		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
+		if err != nil {
+			return err
+		}
+		if parentFolder == nil {
+			return apiError.ErrNotFound
+		}
+
+		path := parentFolder.GetPath() + sourceFolderInfo.GetName() + "/"
+		targetFolderInfo, err := fu.folderInfoService.Copy(tx, sourceFolderInfo, path)
+		if err != nil {
+			return err
+		}
+		targetFolderInfo.SetParentFolderID(&parentFolderID)
+
+		folder, err = fu.folderInfoRepository.Save(tx, targetFolderInfo)
 		return err
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {

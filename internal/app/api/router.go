@@ -13,7 +13,7 @@ import (
 func route(r *gin.Engine, db *gorm.DB) {
 	folderInfoRepository := infrastructure.NewFolderInfoInfrastructure()
 	folderBodyRepository := infrastructure.NewFolderBodyInfrastructure()
-	folderInfoService := service.NewFolderInfoService(folderInfoRepository)
+	folderInfoService := service.NewFolderInfoService(folderInfoRepository, folderBodyRepository)
 	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
 	folderHandler := handler.NewFolderHandler(folderUsecase)
 
@@ -24,5 +24,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 		folders.PUT("/:id", folderHandler.Update)
 		folders.DELETE("/:id", folderHandler.Remove)
 		folders.PUT("/:id/move", folderHandler.Move)
+		folders.POST("/:id/copy", folderHandler.Copy)
 	}
 }

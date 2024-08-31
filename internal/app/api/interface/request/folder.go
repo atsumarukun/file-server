@@ -14,3 +14,7 @@ type UpdateFolderRequest struct {
 type MoveFolderRequest struct {
 	ParentFolderID int64 `json:"parent_folder_id"`
 }
+
+type CopyFolderRequest struct {
+	ParentFolderID int64 `json:"parent_folder_id"`
+}
