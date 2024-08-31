@@ -8,6 +8,6 @@ CREATE TABLE IF NOT EXISTS folders (
   updated_at DATETIME (6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT "更新日",
   deleted_at DATETIME (6) COMMENT "削除日",
   PRIMARY KEY (id),
-  CONSTRAINT fk_folders_folder_id FOREIGN KEY (parent_folder_id) REFERENCES folders (id) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_folders_parent_folder_id FOREIGN KEY (parent_folder_id) REFERENCES folders (id) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT uq_folders_path UNIQUE (path)
 );
