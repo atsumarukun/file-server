@@ -442,7 +442,7 @@ components:
           description: "ファイルパス"
           example: "/example/example.txt"
           readOnly: true
-        type:
+        mime_type:
           type: string
           description: "ファイルタイプ"
           example: "image/png"
@@ -465,7 +465,7 @@ components:
         - folder_id
         - name
         - path
-        - type
+        - mime_type
         - is_hide
         - files
         - created_at
@@ -572,7 +572,7 @@ components:
                 properties:
                   folder_id:
                     readOnly: true
-                  type:
+                  mime_type:
                     readOnly: true
                   files:
                     readOnly: true
