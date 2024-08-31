@@ -22,6 +22,18 @@ func (fi *fileInfoInfrastructure) Save(db *gorm.DB, file *entity.FileInfo) (*ent
 	return fi.modelToEntity(fileModel)
 }
 
+func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FileInfo, error) {
+	var fileModel model.FileModel
+	if err := db.First(&fileModel, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return fi.modelToEntity(&fileModel)
+}
+
 func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FileInfo, error) {
 	var fileModel model.FileModel
 	if err := db.First(&fileModel, "path = ?", path).Error; err != nil {

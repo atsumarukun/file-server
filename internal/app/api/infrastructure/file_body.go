@@ -20,3 +20,7 @@ func (fi *fileBodyInfrastructure) Create(file *entity.FileBody) error {
 	}
 	return os.WriteFile(config.STORAGE_PATH+file.GetPath(), file.GetBody(), info.Mode())
 }
+
+func (fi *fileBodyInfrastructure) Update(oldPath string, newPath string) error {
+	return os.Rename(config.STORAGE_PATH+oldPath, config.STORAGE_PATH+newPath)
+}

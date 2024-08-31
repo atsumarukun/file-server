@@ -36,5 +36,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 	files := r.Group("/files")
 	{
 		files.POST("/", fileHandler.Create)
+		files.PUT(":id", fileHandler.Update)
 	}
 }

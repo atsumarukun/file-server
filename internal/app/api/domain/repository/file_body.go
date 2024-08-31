@@ -4,4 +4,5 @@ import "file-server/internal/app/api/domain/entity"
 
 type FileBodyRepository interface {
 	Create(*entity.FileBody) error
+	Update(string, string) error
 }

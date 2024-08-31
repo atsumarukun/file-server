@@ -7,12 +7,14 @@ import (
 	"file-server/internal/app/api/usecase/dto"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type FileHandler interface {
 	Create(*gin.Context)
+	Update(*gin.Context)
 }
 
 type fileHandler struct {
@@ -45,6 +47,28 @@ func (fh *fileHandler) Create(c *gin.Context) {
 	}
 
 	fileDTO, apiErr := fh.usecase.Create(file.FolderID, header.Filename, file.IsHide, body)
+	if apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
+		return
+	}
+
+	c.JSON(http.StatusOK, fh.dtoToResponse(fileDTO))
+}
+
+func (fh *fileHandler) Update(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var file request.UpdateFileRequest
+	if err := c.ShouldBindJSON(&file); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fileDTO, apiErr := fh.usecase.Update(id, file.Name, file.IsHide)
 	if apiErr != nil {
 		c.JSON(apiErr.Code, apiErr.Message)
 		return
