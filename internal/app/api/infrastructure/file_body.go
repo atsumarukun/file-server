@@ -14,7 +14,7 @@ func NewFileBodyInfrastructure() repository.FileBodyRepository {
 }
 
 func (fi *fileBodyInfrastructure) Create(file *entity.FileBody) error {
-	info, err := os.Lstat(config.STORAGE_PATH)
+	info, err := os.Lstat("./")
 	if err != nil {
 		return err
 	}

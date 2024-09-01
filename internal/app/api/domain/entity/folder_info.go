@@ -7,8 +7,8 @@ import (
 )
 
 type FolderInfo struct {
-	id             int64
-	parentFolderID *int64
+	id             uint64
+	parentFolderID *uint64
 	name           string
 	path           string
 	isHide         bool
@@ -18,7 +18,7 @@ type FolderInfo struct {
 	updatedAt      time.Time
 }
 
-func NewFolderInfo(parentFolderID *int64, name string, path string, isHide bool) (*FolderInfo, error) {
+func NewFolderInfo(parentFolderID *uint64, name string, path string, isHide bool) (*FolderInfo, error) {
 	folder := &FolderInfo{}
 
 	folder.SetParentFolderID(parentFolderID)
@@ -33,19 +33,19 @@ func NewFolderInfo(parentFolderID *int64, name string, path string, isHide bool)
 	return folder, nil
 }
 
-func (f *FolderInfo) GetID() int64 {
+func (f *FolderInfo) GetID() uint64 {
 	return f.id
 }
 
-func (f *FolderInfo) SetID(id int64) {
+func (f *FolderInfo) SetID(id uint64) {
 	f.id = id
 }
 
-func (f *FolderInfo) GetParentFolderID() *int64 {
+func (f *FolderInfo) GetParentFolderID() *uint64 {
 	return f.parentFolderID
 }
 
-func (f *FolderInfo) SetParentFolderID(parentFolderID *int64) {
+func (f *FolderInfo) SetParentFolderID(parentFolderID *uint64) {
 	f.parentFolderID = parentFolderID
 }
 

@@ -7,8 +7,8 @@ import (
 )
 
 type FileModel struct {
-	ID        int64
-	FolderID  int64
+	ID        uint64
+	FolderID  uint64
 	Name      string
 	Path      string
 	MimeType  string

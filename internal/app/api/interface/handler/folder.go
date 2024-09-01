@@ -47,7 +47,7 @@ func (fh *folderHandler) Create(c *gin.Context) {
 }
 
 func (fh *folderHandler) Update(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -69,7 +69,7 @@ func (fh *folderHandler) Update(c *gin.Context) {
 }
 
 func (fh *folderHandler) Remove(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -84,7 +84,7 @@ func (fh *folderHandler) Remove(c *gin.Context) {
 }
 
 func (fh *folderHandler) Move(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
@@ -106,7 +106,7 @@ func (fh *folderHandler) Move(c *gin.Context) {
 }
 
 func (fh *folderHandler) Copy(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return

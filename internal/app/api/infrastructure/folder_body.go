@@ -13,7 +13,7 @@ func NewFolderBodyInfrastructure() repository.FolderBodyRepository {
 }
 
 func (fi *folderBodyInfrastructure) Create(path string) error {
-	info, err := os.Lstat(config.STORAGE_PATH)
+	info, err := os.Lstat("./")
 	if err != nil {
 		return err
 	}

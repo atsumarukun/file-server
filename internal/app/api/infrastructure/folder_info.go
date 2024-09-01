@@ -35,7 +35,7 @@ func (fi *folderInfoInfrastructure) Removes(db *gorm.DB, folders []entity.Folder
 	return db.Delete(folderModels).Error
 }
 
-func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
+func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -59,7 +59,7 @@ func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*en
 	return fi.modelToEntity(&folderModel)
 }
 
-func (fi *folderInfoInfrastructure) FindOneByIDWithRelationship(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
+func (fi *folderInfoInfrastructure) FindOneByIDWithRelationship(db *gorm.DB, id uint64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -83,7 +83,7 @@ func (fi *folderInfoInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, p
 	return fi.modelToEntity(&folderModel)
 }
 
-func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id int64, path string) ([]entity.FolderInfo, error) {
+func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id uint64, path string) ([]entity.FolderInfo, error) {
 	var folderModels []model.FolderModel
 	if err := db.Find(&folderModels, "id <> ? AND path LIKE ?", id, path+"%").Error; err != nil {
 		if err == gorm.ErrRecordNotFound {

@@ -1,8 +1,8 @@
 package request
 
 type CreateFileRequest struct {
-	FolderID int64 `form:"folder_id"`
-	IsHide   bool  `form:"is_hide"`
+	FolderID uint64 `form:"folder_id"`
+	IsHide   bool   `form:"is_hide"`
 }
 
 type UpdateFileRequest struct {
@@ -11,9 +11,9 @@ type UpdateFileRequest struct {
 }
 
 type MoveFileRequest struct {
-	FolderID int64 `json:"folder_id"`
+	FolderID uint64 `json:"folder_id"`
 }
 
 type CopyFileRequest struct {
-	FolderID int64 `json:"folder_id"`
+	FolderID uint64 `json:"folder_id"`
 }

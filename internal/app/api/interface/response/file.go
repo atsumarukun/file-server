@@ -3,8 +3,8 @@ package response
 import "time"
 
 type FileResponse struct {
-	ID        int64     `json:"id"`
-	FolderID  int64     `json:"folder_id"`
+	ID        uint64    `json:"id"`
+	FolderID  uint64    `json:"folder_id"`
 	Name      string    `json:"name"`
 	Path      string    `json:"path"`
 	MimeType  string    `json:"mime_type"`

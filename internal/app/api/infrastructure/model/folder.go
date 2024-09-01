@@ -7,8 +7,8 @@ import (
 )
 
 type FolderModel struct {
-	ID             int64
-	ParentFolderID *int64
+	ID             uint64
+	ParentFolderID *uint64
 	Name           string
 	Path           string
 	IsHide         bool

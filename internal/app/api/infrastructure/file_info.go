@@ -35,7 +35,7 @@ func (fi *fileInfoInfrastructure) Remove(db *gorm.DB, file *entity.FileInfo) err
 	return db.Delete(fileModel).Error
 }
 
-func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id int64) (*entity.FileInfo, error) {
+func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.FileInfo, error) {
 	var fileModel model.FileModel
 	if err := db.First(&fileModel, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {

@@ -14,11 +14,11 @@ import (
 )
 
 type FileUsecase interface {
-	Create(int64, string, bool, []byte) (*dto.FileDTO, *apiError.Error)
-	Update(int64, string, bool) (*dto.FileDTO, *apiError.Error)
-	Remove(int64) *apiError.Error
-	Move(int64, int64) (*dto.FileDTO, *apiError.Error)
-	Copy(int64, int64) (*dto.FileDTO, *apiError.Error)
+	Create(uint64, string, bool, []byte) (*dto.FileDTO, *apiError.Error)
+	Update(uint64, string, bool) (*dto.FileDTO, *apiError.Error)
+	Remove(uint64) *apiError.Error
+	Move(uint64, uint64) (*dto.FileDTO, *apiError.Error)
+	Copy(uint64, uint64) (*dto.FileDTO, *apiError.Error)
 }
 
 type fileUsecase struct {
@@ -39,7 +39,7 @@ func NewFileUsecase(db *gorm.DB, fileInfoRepository repository.FileInfoRepositor
 	}
 }
 
-func (fu *fileUsecase) Create(folderID int64, name string, isHide bool, body []byte) (*dto.FileDTO, *apiError.Error) {
+func (fu *fileUsecase) Create(folderID uint64, name string, isHide bool, body []byte) (*dto.FileDTO, *apiError.Error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, folderID)
@@ -81,7 +81,7 @@ func (fu *fileUsecase) Create(folderID int64, name string, isHide bool, body []b
 	return fu.entityToDTO(file), nil
 }
 
-func (fu *fileUsecase) Update(id int64, name string, isHide bool) (*dto.FileDTO, *apiError.Error) {
+func (fu *fileUsecase) Update(id uint64, name string, isHide bool) (*dto.FileDTO, *apiError.Error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
@@ -123,7 +123,7 @@ func (fu *fileUsecase) Update(id int64, name string, isHide bool) (*dto.FileDTO,
 	return fu.entityToDTO(file), nil
 }
 
-func (fu *fileUsecase) Remove(id int64) *apiError.Error {
+func (fu *fileUsecase) Remove(id uint64) *apiError.Error {
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
 		if err != nil {
@@ -145,7 +145,7 @@ func (fu *fileUsecase) Remove(id int64) *apiError.Error {
 	return nil
 }
 
-func (fu *fileUsecase) Move(id int64, folderID int64) (*dto.FileDTO, *apiError.Error) {
+func (fu *fileUsecase) Move(id uint64, folderID uint64) (*dto.FileDTO, *apiError.Error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
@@ -188,7 +188,7 @@ func (fu *fileUsecase) Move(id int64, folderID int64) (*dto.FileDTO, *apiError.E
 	return fu.entityToDTO(file), nil
 }
 
-func (fu *fileUsecase) Copy(id int64, folderID int64) (*dto.FileDTO, *apiError.Error) {
+func (fu *fileUsecase) Copy(id uint64, folderID uint64) (*dto.FileDTO, *apiError.Error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		sourceFileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)

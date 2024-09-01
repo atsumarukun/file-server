@@ -7,8 +7,8 @@ import (
 )
 
 type FileInfo struct {
-	id        int64
-	folderID  int64
+	id        uint64
+	folderID  uint64
 	name      string
 	path      string
 	mimeType  string
@@ -17,7 +17,7 @@ type FileInfo struct {
 	updatedAt time.Time
 }
 
-func NewFileInfo(folderID int64, name string, path string, mimeType string, isHide bool) (*FileInfo, error) {
+func NewFileInfo(folderID uint64, name string, path string, mimeType string, isHide bool) (*FileInfo, error) {
 	file := &FileInfo{}
 
 	file.SetFolderID(folderID)
@@ -35,19 +35,19 @@ func NewFileInfo(folderID int64, name string, path string, mimeType string, isHi
 	return file, nil
 }
 
-func (f *FileInfo) GetID() int64 {
+func (f *FileInfo) GetID() uint64 {
 	return f.id
 }
 
-func (f *FileInfo) SetID(id int64) {
+func (f *FileInfo) SetID(id uint64) {
 	f.id = id
 }
 
-func (f *FileInfo) GetFolderID() int64 {
+func (f *FileInfo) GetFolderID() uint64 {
 	return f.folderID
 }
 
-func (f *FileInfo) SetFolderID(folderID int64) {
+func (f *FileInfo) SetFolderID(folderID uint64) {
 	f.folderID = folderID
 }
 

@@ -15,11 +15,11 @@ import (
 )
 
 type FolderUsecase interface {
-	Create(int64, string, bool) (*dto.FolderDTO, *apiError.Error)
-	Update(int64, string, bool) (*dto.FolderDTO, *apiError.Error)
-	Remove(int64) *apiError.Error
-	Move(int64, int64) (*dto.FolderDTO, *apiError.Error)
-	Copy(int64, int64) (*dto.FolderDTO, *apiError.Error)
+	Create(uint64, string, bool) (*dto.FolderDTO, *apiError.Error)
+	Update(uint64, string, bool) (*dto.FolderDTO, *apiError.Error)
+	Remove(uint64) *apiError.Error
+	Move(uint64, uint64) (*dto.FolderDTO, *apiError.Error)
+	Copy(uint64, uint64) (*dto.FolderDTO, *apiError.Error)
 	FindOne(string) (*dto.FolderDTO, *apiError.Error)
 }
 
@@ -39,7 +39,7 @@ func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRep
 	}
 }
 
-func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
@@ -78,7 +78,7 @@ func (fu *folderUsecase) Create(parentFolderID int64, name string, isHide bool) 
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
@@ -120,7 +120,7 @@ func (fu *folderUsecase) Update(id int64, name string, isHide bool) (*dto.Folder
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Remove(id int64) *apiError.Error {
+func (fu *folderUsecase) Remove(id uint64) *apiError.Error {
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
 		if err != nil {
@@ -150,7 +150,7 @@ func (fu *folderUsecase) Remove(id int64) *apiError.Error {
 	return nil
 }
 
-func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
@@ -197,7 +197,7 @@ func (fu *folderUsecase) Move(id int64, parentFolderID int64) (*dto.FolderDTO, *
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Copy(id int64, parentFolderID int64) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithRelationship(tx, id)
