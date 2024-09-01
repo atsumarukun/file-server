@@ -13,6 +13,7 @@ type FolderInfo struct {
 	path           string
 	isHide         bool
 	folders        []FolderInfo
+	files          []FileInfo
 	createdAt      time.Time
 	updatedAt      time.Time
 }
@@ -95,6 +96,14 @@ func (f *FolderInfo) GetFolders() []FolderInfo {
 
 func (f *FolderInfo) SetFolders(folders []FolderInfo) {
 	f.folders = folders
+}
+
+func (f *FolderInfo) GetFiles() []FileInfo {
+	return f.files
+}
+
+func (f *FolderInfo) SetFiles(files []FileInfo) {
+	f.files = files
 }
 
 func (f *FolderInfo) GetCreatedAt() time.Time {

@@ -147,6 +147,22 @@ func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *response.FolderRe
 			folders[i] = *fh.dtoToResponse(&v)
 		}
 	}
+	var files []response.FileResponse
+	if folder.Files != nil {
+		files = make([]response.FileResponse, len(folder.Files))
+		for i, v := range folder.Files {
+			files[i] = response.FileResponse{
+				ID:        v.ID,
+				FolderID:  v.FolderID,
+				Name:      v.Name,
+				Path:      v.Path,
+				MimeType:  v.MimeType,
+				IsHide:    v.IsHide,
+				CreatedAt: v.CreatedAt,
+				UpdatedAt: v.UpdatedAt,
+			}
+		}
+	}
 	return &response.FolderResponse{
 		ID:             folder.ID,
 		ParentFolderID: folder.ParentFolderID,
@@ -154,6 +170,7 @@ func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *response.FolderRe
 		Path:           folder.Path,
 		IsHide:         folder.IsHide,
 		Folders:        folders,
+		Files:          files,
 		CreatedAt:      folder.CreatedAt,
 		UpdatedAt:      folder.UpdatedAt,
 	}

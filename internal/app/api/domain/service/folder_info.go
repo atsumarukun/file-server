@@ -17,12 +17,16 @@ type FolderInfoService interface {
 type folderInfoService struct {
 	folderInfoRepository repository.FolderInfoRepository
 	folderBodyRepository repository.FolderBodyRepository
+	fileInfoRepository   repository.FileInfoRepository
+	fileBodyRepository   repository.FileBodyRepository
 }
 
-func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository, folderBodyRepository repository.FolderBodyRepository) FolderInfoService {
+func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository, folderBodyRepository repository.FolderBodyRepository, fileInfoRepository repository.FileInfoRepository, fileBodyRepository repository.FileBodyRepository) FolderInfoService {
 	return &folderInfoService{
 		folderInfoRepository: folderInfoRepository,
 		folderBodyRepository: folderBodyRepository,
+		fileInfoRepository:   fileInfoRepository,
+		fileBodyRepository:   fileBodyRepository,
 	}
 }
 
@@ -45,16 +49,36 @@ func (fs *folderInfoService) Move(db *gorm.DB, folder *entity.FolderInfo, path s
 	}
 
 	lowerFolders, err := fs.folderInfoRepository.FindByIDNotAndPathLike(db, folder.GetID(), oldPath)
-	if err != nil {
-		return err
-	}
-	for i := 0; i < len(lowerFolders); i++ {
-		if err := lowerFolders[i].Move(oldPath, path); err != nil {
+	if 0 < len(lowerFolders) {
+		if err != nil {
+			return err
+		}
+		for i := 0; i < len(lowerFolders); i++ {
+			if err := lowerFolders[i].Move(oldPath, path); err != nil {
+				return err
+			}
+		}
+		if _, err := fs.folderInfoRepository.Saves(db, lowerFolders); err != nil {
 			return err
 		}
 	}
-	_, err = fs.folderInfoRepository.Saves(db, lowerFolders)
-	return err
+
+	lowerFiles, err := fs.fileInfoRepository.FindByPathLike(db, oldPath)
+	if 0 < len(lowerFiles) {
+		if err != nil {
+			return err
+		}
+		for i := 0; i < len(lowerFiles); i++ {
+			if err := lowerFiles[i].Move(oldPath, path); err != nil {
+				return err
+			}
+		}
+		if _, err := fs.fileInfoRepository.Saves(db, lowerFiles); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (fs *folderInfoService) Copy(db *gorm.DB, folder *entity.FolderInfo, path string) (*entity.FolderInfo, error) {
@@ -86,6 +110,26 @@ func (fs *folderInfoService) Copy(db *gorm.DB, folder *entity.FolderInfo, path s
 			newChildren[i] = *newChild
 		}
 		newFolder.SetFolders(newChildren)
+	}
+
+	files := folder.GetFiles()
+	if 0 < len(files) {
+		newFiles := make([]entity.FileInfo, len(files))
+		for i, file := range files {
+			fileBody, err := fs.fileBodyRepository.Read(file.GetPath())
+			if err != nil {
+				return nil, err
+			}
+			fileBody.SetPath(path + file.GetName())
+			fs.fileBodyRepository.Create(fileBody)
+
+			newFile, err := entity.NewFileInfo(0, file.GetName(), path+file.GetName(), file.GetMimeType(), file.GetIsHide())
+			if err != nil {
+				return nil, err
+			}
+			newFiles[i] = *newFile
+		}
+		newFolder.SetFiles(newFiles)
 	}
 
 	return newFolder, nil

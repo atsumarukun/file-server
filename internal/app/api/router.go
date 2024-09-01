@@ -13,9 +13,14 @@ import (
 func route(r *gin.Engine, db *gorm.DB) {
 	folderInfoRepository := infrastructure.NewFolderInfoInfrastructure()
 	folderBodyRepository := infrastructure.NewFolderBodyInfrastructure()
-	folderInfoService := service.NewFolderInfoService(folderInfoRepository, folderBodyRepository)
+	fileInfoRepository := infrastructure.NewFileInfoInfrastructure()
+	fileBodyRepository := infrastructure.NewFileBodyInfrastructure()
+	folderInfoService := service.NewFolderInfoService(folderInfoRepository, folderBodyRepository, fileInfoRepository, fileBodyRepository)
+	fileInfoService := service.NewFileInfoService(fileInfoRepository)
 	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
+	fileUsecase := usecase.NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
 	folderHandler := handler.NewFolderHandler(folderUsecase)
+	fileHandler := handler.NewFileHandler(fileUsecase)
 
 	folders := r.Group("/folders")
 	{
@@ -26,12 +31,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 		folders.PUT("/:id/move", folderHandler.Move)
 		folders.POST("/:id/copy", folderHandler.Copy)
 	}
-
-	fileInfoRepository := infrastructure.NewFileInfoInfrastructure()
-	fileBodyRepository := infrastructure.NewFileBodyInfrastructure()
-	fileInfoService := service.NewFileInfoService(fileInfoRepository)
-	fileUsecase := usecase.NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
-	fileHandler := handler.NewFileHandler(fileUsecase)
 
 	files := r.Group("/files")
 	{

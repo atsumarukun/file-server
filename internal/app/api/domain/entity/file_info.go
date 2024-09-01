@@ -119,3 +119,7 @@ func (f *FileInfo) GetUpdatedAt() time.Time {
 func (f *FileInfo) SetUpdatedAt(updatedAt time.Time) {
 	f.updatedAt = updatedAt
 }
+
+func (f *FileInfo) Move(oldPath string, newPath string) error {
+	return f.SetPath(strings.Replace(f.path, oldPath, newPath, 1))
+}

@@ -61,7 +61,7 @@ func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*en
 
 func (fi *folderInfoInfrastructure) FindOneByIDWithRelationship(db *gorm.DB, id int64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
-	if err := db.Preload("Folders").First(&folderModel, "id = ?", id).Error; err != nil {
+	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		} else {
@@ -73,7 +73,7 @@ func (fi *folderInfoInfrastructure) FindOneByIDWithRelationship(db *gorm.DB, id 
 
 func (fi *folderInfoInfrastructure) FindOneByPathWithRelationship(db *gorm.DB, path string) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
-	if err := db.Preload("Folders").First(&folderModel, "path = ?", path).Error; err != nil {
+	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "path = ?", path).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		} else {
@@ -103,6 +103,22 @@ func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *mo
 			folders[i] = *fi.entityToModel(&v)
 		}
 	}
+	var files []model.FileModel
+	if folder.GetFiles() != nil {
+		files = make([]model.FileModel, len(folder.GetFiles()))
+		for i, v := range folder.GetFiles() {
+			files[i] = model.FileModel{
+				ID:        v.GetID(),
+				FolderID:  v.GetFolderID(),
+				Name:      v.GetName(),
+				Path:      v.GetPath(),
+				MimeType:  v.GetMimeType(),
+				IsHide:    v.GetIsHide(),
+				CreatedAt: v.GetCreatedAt(),
+				UpdatedAt: v.GetUpdatedAt(),
+			}
+		}
+	}
 	return &model.FolderModel{
 		ID:             folder.GetID(),
 		ParentFolderID: folder.GetParentFolderID(),
@@ -110,6 +126,7 @@ func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *mo
 		Path:           folder.GetPath(),
 		IsHide:         folder.GetIsHide(),
 		Folders:        folders,
+		Files:          files,
 		CreatedAt:      folder.GetCreatedAt(),
 		UpdatedAt:      folder.GetUpdatedAt(),
 	}
@@ -135,6 +152,28 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 			folders[i] = *f
 		}
 	}
+	var files []entity.FileInfo
+	if folder.Files != nil {
+		files = make([]entity.FileInfo, len(folder.Files))
+		for i, v := range folder.Files {
+			f := &entity.FileInfo{}
+			f.SetID(v.ID)
+			f.SetFolderID(v.FolderID)
+			if err := f.SetName(v.Name); err != nil {
+				return nil, err
+			}
+			if err := f.SetPath(v.Path); err != nil {
+				return nil, err
+			}
+			if err := f.SetMimeType(v.MimeType); err != nil {
+				return nil, err
+			}
+			f.SetIsHide(v.IsHide)
+			f.SetCreatedAt(v.CreatedAt)
+			f.SetUpdatedAt(v.UpdatedAt)
+			files[i] = *f
+		}
+	}
 	folderEntity := &entity.FolderInfo{}
 	folderEntity.SetID(folder.ID)
 	folderEntity.SetParentFolderID(folder.ParentFolderID)
@@ -146,6 +185,7 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 	}
 	folderEntity.SetIsHide(folder.IsHide)
 	folderEntity.SetFolders(folders)
+	folderEntity.SetFiles(files)
 	folderEntity.SetCreatedAt(folder.CreatedAt)
 	folderEntity.SetUpdatedAt(folder.UpdatedAt)
 	return folderEntity, nil

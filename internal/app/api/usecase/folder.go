@@ -255,6 +255,22 @@ func (fu *folderUsecase) entityToDTO(folder *entity.FolderInfo) *dto.FolderDTO {
 			folders[i] = *fu.entityToDTO(&v)
 		}
 	}
+	var files []dto.FileDTO
+	if folder.GetFiles() != nil {
+		files = make([]dto.FileDTO, len(folder.GetFiles()))
+		for i, v := range folder.GetFiles() {
+			files[i] = dto.FileDTO{
+				ID:        v.GetID(),
+				FolderID:  v.GetFolderID(),
+				Name:      v.GetName(),
+				Path:      v.GetPath(),
+				MimeType:  v.GetMimeType(),
+				IsHide:    v.GetIsHide(),
+				CreatedAt: v.GetCreatedAt(),
+				UpdatedAt: v.GetUpdatedAt(),
+			}
+		}
+	}
 	return &dto.FolderDTO{
 		ID:             folder.GetID(),
 		ParentFolderID: folder.GetParentFolderID(),
@@ -262,6 +278,7 @@ func (fu *folderUsecase) entityToDTO(folder *entity.FolderInfo) *dto.FolderDTO {
 		Path:           folder.GetPath(),
 		IsHide:         folder.GetIsHide(),
 		Folders:        folders,
+		Files:          files,
 		CreatedAt:      folder.GetCreatedAt(),
 		UpdatedAt:      folder.GetUpdatedAt(),
 	}
