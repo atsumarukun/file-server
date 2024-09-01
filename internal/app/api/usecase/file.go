@@ -16,6 +16,7 @@ import (
 type FileUsecase interface {
 	Create(int64, string, bool, []byte) (*dto.FileDTO, *apiError.Error)
 	Update(int64, string, bool) (*dto.FileDTO, *apiError.Error)
+	Remove(int64) *apiError.Error
 }
 
 type fileUsecase struct {
@@ -118,6 +119,28 @@ func (fu *fileUsecase) Update(id int64, name string, isHide bool) (*dto.FileDTO,
 	}
 
 	return fu.entityToDTO(file), nil
+}
+
+func (fu *fileUsecase) Remove(id int64) *apiError.Error {
+	if err := fu.db.Transaction(func(tx *gorm.DB) error {
+		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
+		if err != nil {
+			return err
+		}
+		if fileInfo == nil {
+			return apiError.ErrNotFound
+		}
+
+		return fu.fileInfoRepository.Remove(tx, fileInfo)
+	}); err != nil {
+		if errors.Is(err, apiError.ErrNotFound) {
+			return apiError.NewError(http.StatusNotFound, err.Error())
+		} else {
+			return apiError.NewError(http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	return nil
 }
 
 func (fu *fileUsecase) entityToDTO(file *entity.FileInfo) *dto.FileDTO {
