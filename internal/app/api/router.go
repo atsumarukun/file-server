@@ -38,5 +38,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 		files.POST("/", fileHandler.Create)
 		files.PUT("/:id", fileHandler.Update)
 		files.DELETE("/:id", fileHandler.Remove)
+		files.PUT("/:id/move", fileHandler.Move)
 	}
 }

@@ -17,6 +17,7 @@ type FileUsecase interface {
 	Create(int64, string, bool, []byte) (*dto.FileDTO, *apiError.Error)
 	Update(int64, string, bool) (*dto.FileDTO, *apiError.Error)
 	Remove(int64) *apiError.Error
+	Move(int64, int64) (*dto.FileDTO, *apiError.Error)
 }
 
 type fileUsecase struct {
@@ -141,6 +142,49 @@ func (fu *fileUsecase) Remove(id int64) *apiError.Error {
 	}
 
 	return nil
+}
+
+func (fu *fileUsecase) Move(id int64, folderID int64) (*dto.FileDTO, *apiError.Error) {
+	var file *entity.FileInfo
+	if err := fu.db.Transaction(func(tx *gorm.DB) error {
+		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
+		if err != nil {
+			return err
+		}
+		if fileInfo == nil {
+			return apiError.ErrNotFound
+		}
+
+		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, folderID)
+		if err != nil {
+			return err
+		}
+		if parentFolder == nil {
+			return apiError.ErrNotFound
+		}
+
+		oldPath := fileInfo.GetPath()
+		path := parentFolder.GetPath() + fileInfo.GetName()
+		if err := fileInfo.SetPath(path); err != nil {
+			return err
+		}
+		fileInfo.SetFolderID(folderID)
+
+		if err := fu.fileBodyRepository.Update(oldPath, path); err != nil {
+			return err
+		}
+
+		file, err = fu.fileInfoRepository.Save(tx, fileInfo)
+		return err
+	}); err != nil {
+		if errors.Is(err, apiError.ErrNotFound) {
+			return nil, apiError.NewError(http.StatusNotFound, err.Error())
+		} else {
+			return nil, apiError.NewError(http.StatusInternalServerError, err.Error())
+		}
+	}
+
+	return fu.entityToDTO(file), nil
 }
 
 func (fu *fileUsecase) entityToDTO(file *entity.FileInfo) *dto.FileDTO {
