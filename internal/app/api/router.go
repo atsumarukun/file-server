@@ -41,4 +41,6 @@ func route(r *gin.Engine, db *gorm.DB) {
 		files.PUT("/:id/move", fileHandler.Move)
 		files.POST("/:id/copy", fileHandler.Copy)
 	}
+
+	r.Static("/static", "./storage")
 }
