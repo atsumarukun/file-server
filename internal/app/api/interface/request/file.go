@@ -13,3 +13,7 @@ type UpdateFileRequest struct {
 type MoveFileRequest struct {
 	FolderID int64 `json:"folder_id"`
 }
+
+type CopyFileRequest struct {
+	FolderID int64 `json:"folder_id"`
+}

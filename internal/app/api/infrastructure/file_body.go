@@ -24,3 +24,11 @@ func (fi *fileBodyInfrastructure) Create(file *entity.FileBody) error {
 func (fi *fileBodyInfrastructure) Update(oldPath string, newPath string) error {
 	return os.Rename(config.STORAGE_PATH+oldPath, config.STORAGE_PATH+newPath)
 }
+
+func (fi *fileBodyInfrastructure) Read(path string) (*entity.FileBody, error) {
+	body, err := os.ReadFile(config.STORAGE_PATH + path)
+	if err != nil {
+		return nil, err
+	}
+	return entity.NewFileBody(path, body), nil
+}

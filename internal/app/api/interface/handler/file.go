@@ -17,6 +17,7 @@ type FileHandler interface {
 	Update(*gin.Context)
 	Remove(*gin.Context)
 	Move(*gin.Context)
+	Copy(*gin.Context)
 }
 
 type fileHandler struct {
@@ -108,6 +109,28 @@ func (fh *fileHandler) Move(c *gin.Context) {
 	}
 
 	fileDTO, apiErr := fh.usecase.Move(id, file.FolderID)
+	if apiErr != nil {
+		c.JSON(apiErr.Code, apiErr.Message)
+		return
+	}
+
+	c.JSON(http.StatusOK, fh.dtoToResponse(fileDTO))
+}
+
+func (fh *fileHandler) Copy(c *gin.Context) {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	var file request.CopyFileRequest
+	if err := c.ShouldBindJSON(&file); err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fileDTO, apiErr := fh.usecase.Copy(id, file.FolderID)
 	if apiErr != nil {
 		c.JSON(apiErr.Code, apiErr.Message)
 		return
