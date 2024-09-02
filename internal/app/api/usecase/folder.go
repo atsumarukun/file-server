@@ -200,7 +200,7 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithRelationship(tx, id)
+		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithChildren(tx, id)
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 }
 
 func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, *apiError.Error) {
-	folder, err := fu.folderInfoRepository.FindOneByPathWithRelationship(fu.db, path)
+	folder, err := fu.folderInfoRepository.FindOneByPathWithChildren(fu.db, path)
 	if err != nil {
 		return nil, apiError.NewError(http.StatusNotFound, err.Error())
 	}

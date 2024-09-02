@@ -99,7 +99,7 @@ func (fs *folderInfoService) Copy(db *gorm.DB, folder *entity.FolderInfo, path s
 	if 0 < len(children) {
 		newChildren := make([]entity.FolderInfo, len(children))
 		for i := 0; i < len(children); i++ {
-			child, err := fs.folderInfoRepository.FindOneByIDWithRelationship(db, children[i].GetID())
+			child, err := fs.folderInfoRepository.FindOneByIDWithChildren(db, children[i].GetID())
 			if err != nil {
 				return nil, err
 			}
