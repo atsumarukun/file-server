@@ -122,7 +122,7 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 
 func (fu *folderUsecase) Remove(id uint64) *apiError.Error {
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
+		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
@@ -130,15 +130,7 @@ func (fu *folderUsecase) Remove(id uint64) *apiError.Error {
 			return apiError.ErrNotFound
 		}
 
-		lowerFolders, err := fu.folderInfoRepository.FindByIDNotAndPathLike(tx, folderInfo.GetID(), folderInfo.GetPath())
-		if err != nil {
-			return err
-		}
-
-		removeFolders := []entity.FolderInfo{*folderInfo}
-		removeFolders = append(removeFolders, lowerFolders...)
-
-		return fu.folderInfoRepository.Removes(tx, removeFolders)
+		return fu.folderInfoRepository.Remove(tx, folderInfo)
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
 			return apiError.NewError(http.StatusNotFound, err.Error())
