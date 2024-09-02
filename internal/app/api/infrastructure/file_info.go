@@ -22,14 +22,6 @@ func (fi *fileInfoInfrastructure) Save(db *gorm.DB, file *entity.FileInfo) (*ent
 	return fi.modelToEntity(fileModel)
 }
 
-func (fi *fileInfoInfrastructure) Saves(db *gorm.DB, files []entity.FileInfo) ([]entity.FileInfo, error) {
-	fileModels := fi.entitiesToModels(files)
-	if err := db.Save(fileModels).Error; err != nil {
-		return nil, err
-	}
-	return fi.modelsToEntities(fileModels)
-}
-
 func (fi *fileInfoInfrastructure) Remove(db *gorm.DB, file *entity.FileInfo) error {
 	fileModel := fi.entityToModel(file)
 	return db.Delete(fileModel).Error
@@ -59,18 +51,6 @@ func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*enti
 	return fi.modelToEntity(&fileModel)
 }
 
-func (fi *fileInfoInfrastructure) FindByPathLike(db *gorm.DB, path string) ([]entity.FileInfo, error) {
-	var fileModels []model.FileModel
-	if err := db.Find(&fileModels, "path LIKE ?", path+"%").Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return make([]entity.FileInfo, 0), nil
-		} else {
-			return nil, err
-		}
-	}
-	return fi.modelsToEntities(fileModels)
-}
-
 func (fi *fileInfoInfrastructure) entityToModel(file *entity.FileInfo) *model.FileModel {
 	return &model.FileModel{
 		ID:        file.GetID(),
@@ -82,14 +62,6 @@ func (fi *fileInfoInfrastructure) entityToModel(file *entity.FileInfo) *model.Fi
 		CreatedAt: file.GetCreatedAt(),
 		UpdatedAt: file.GetUpdatedAt(),
 	}
-}
-
-func (fi *fileInfoInfrastructure) entitiesToModels(files []entity.FileInfo) []model.FileModel {
-	fileModels := make([]model.FileModel, len(files))
-	for i, file := range files {
-		fileModels[i] = *fi.entityToModel(&file)
-	}
-	return fileModels
 }
 
 func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.FileInfo, error) {
@@ -109,16 +81,4 @@ func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.
 	fileEntity.SetCreatedAt(file.CreatedAt)
 	fileEntity.SetUpdatedAt(file.UpdatedAt)
 	return fileEntity, nil
-}
-
-func (fi *fileInfoInfrastructure) modelsToEntities(files []model.FileModel) ([]entity.FileInfo, error) {
-	fileEntities := make([]entity.FileInfo, len(files))
-	for i, file := range files {
-		fileEntity, err := fi.modelToEntity(&file)
-		if err != nil {
-			return nil, err
-		}
-		fileEntities[i] = *fileEntity
-	}
-	return fileEntities, nil
 }

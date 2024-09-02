@@ -81,7 +81,7 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
+		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
@@ -90,15 +90,14 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 		}
 
 		oldName := folderInfo.GetName()
-
-		folderInfo.SetName(name)
 		folderInfo.SetIsHide(isHide)
 
 		if name != oldName {
+			folderInfo.SetName(name)
 			oldPath := folderInfo.GetPath()
 			path := oldPath[:strings.LastIndex(oldPath, oldName)] + name + "/"
 
-			if err := fu.folderInfoService.Move(tx, folderInfo, path); err != nil {
+			if err := folderInfo.Move(oldPath, path); err != nil {
 				return err
 			}
 
@@ -145,7 +144,7 @@ func (fu *folderUsecase) Remove(id uint64) *apiError.Error {
 func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		folderInfo, err := fu.folderInfoRepository.FindOneByID(tx, id)
+		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
@@ -162,13 +161,12 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		}
 
 		oldPath := folderInfo.GetPath()
-
 		if strings.Contains(parentFolder.GetPath(), oldPath) {
 			return fmt.Errorf("cannot move to lower directory")
 		}
-
 		path := parentFolder.GetPath() + folderInfo.GetName() + "/"
-		if err := fu.folderInfoService.Move(tx, folderInfo, path); err != nil {
+
+		if err := folderInfo.Move(oldPath, path); err != nil {
 			return err
 		}
 

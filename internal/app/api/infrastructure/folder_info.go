@@ -19,15 +19,19 @@ func (fi *folderInfoInfrastructure) Save(db *gorm.DB, folder *entity.FolderInfo)
 	if err := db.Save(folderModel).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(folderModel)
-}
-
-func (fi *folderInfoInfrastructure) Saves(db *gorm.DB, folders []entity.FolderInfo) ([]entity.FolderInfo, error) {
-	folderModels := fi.entitiesToModels(folders)
-	if err := db.Save(folderModels).Error; err != nil {
-		return nil, err
+	if 0 < len(folderModel.Folders) {
+		for _, v := range folder.GetFolders() {
+			if _, err := fi.Save(db, &v); err != nil {
+				return nil, err
+			}
+		}
 	}
-	return fi.modelsToEntities(folderModels)
+	if 0 < len(folderModel.Files) {
+		if err := db.Save(folderModel.Files).Error; err != nil {
+			return nil, err
+		}
+	}
+	return fi.modelToEntity(folderModel)
 }
 
 func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInfo) error {
@@ -40,7 +44,9 @@ func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInf
 		}
 	}
 	if 0 < len(folderModel.Files) {
-		db.Delete(folderModel.Files)
+		if err := db.Delete(folderModel.Files).Error; err != nil {
+			return err
+		}
 	}
 	return db.Delete(folderModel).Error
 }
@@ -121,18 +127,6 @@ func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64)
 	return folder, nil
 }
 
-func (fi *folderInfoInfrastructure) FindByIDNotAndPathLike(db *gorm.DB, id uint64, path string) ([]entity.FolderInfo, error) {
-	var folderModels []model.FolderModel
-	if err := db.Find(&folderModels, "id <> ? AND path LIKE ?", id, path+"%").Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return make([]entity.FolderInfo, 0), nil
-		} else {
-			return nil, err
-		}
-	}
-	return fi.modelsToEntities(folderModels)
-}
-
 func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
 	var folders []model.FolderModel
 	if folder.GetFolders() != nil {
@@ -168,14 +162,6 @@ func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *mo
 		CreatedAt:      folder.GetCreatedAt(),
 		UpdatedAt:      folder.GetUpdatedAt(),
 	}
-}
-
-func (fi *folderInfoInfrastructure) entitiesToModels(folders []entity.FolderInfo) []model.FolderModel {
-	folderModels := make([]model.FolderModel, len(folders))
-	for i, folder := range folders {
-		folderModels[i] = *fi.entityToModel(&folder)
-	}
-	return folderModels
 }
 
 func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*entity.FolderInfo, error) {
@@ -227,16 +213,4 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 	folderEntity.SetCreatedAt(folder.CreatedAt)
 	folderEntity.SetUpdatedAt(folder.UpdatedAt)
 	return folderEntity, nil
-}
-
-func (fi *folderInfoInfrastructure) modelsToEntities(folders []model.FolderModel) ([]entity.FolderInfo, error) {
-	folderEntities := make([]entity.FolderInfo, len(folders))
-	for i, folder := range folders {
-		folderEntity, err := fi.modelToEntity(&folder)
-		if err != nil {
-			return nil, err
-		}
-		folderEntities[i] = *folderEntity
-	}
-	return folderEntities, nil
 }

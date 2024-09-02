@@ -123,5 +123,19 @@ func (f *FolderInfo) SetUpdatedAt(updatedAt time.Time) {
 }
 
 func (f *FolderInfo) Move(oldPath string, newPath string) error {
+	if 0 < len(f.folders) {
+		for i := 0; i < len(f.folders); i++ {
+			if err := f.folders[i].Move(oldPath, newPath); err != nil {
+				return err
+			}
+		}
+	}
+	if 0 < len(f.files) {
+		for i := 0; i < len(f.files); i++ {
+			if err := f.files[i].Move(oldPath, newPath); err != nil {
+				return err
+			}
+		}
+	}
 	return f.SetPath(strings.Replace(f.path, oldPath, newPath, 1))
 }
