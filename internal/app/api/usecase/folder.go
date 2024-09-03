@@ -101,6 +101,10 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 				return err
 			}
 
+			if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
+				return err
+			}
+
 			if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {
 				return err
 			}
@@ -167,6 +171,10 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		path := parentFolder.GetPath() + folderInfo.GetName() + "/"
 
 		if err := folderInfo.Move(oldPath, path); err != nil {
+			return err
+		}
+
+		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
 			return err
 		}
 
