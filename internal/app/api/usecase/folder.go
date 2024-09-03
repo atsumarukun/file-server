@@ -61,7 +61,7 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 			return err
 		}
 
-		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
+		folder, err = fu.folderInfoRepository.Create(tx, folderInfo)
 		if err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 			}
 		}
 
-		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
+		folder, err = fu.folderInfoRepository.Update(tx, folderInfo)
 		return err
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
@@ -174,7 +174,7 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 			return err
 		}
 
-		folder, err = fu.folderInfoRepository.Save(tx, folderInfo)
+		folder, err = fu.folderInfoRepository.Update(tx, folderInfo)
 		return err
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {
@@ -190,7 +190,7 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithChildren(tx, id)
+		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
@@ -207,13 +207,17 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		}
 
 		path := parentFolder.GetPath() + sourceFolderInfo.GetName() + "/"
-		targetFolderInfo, err := fu.folderInfoService.Copy(tx, sourceFolderInfo, path)
+		targetFolderInfo, err := sourceFolderInfo.Copy(path)
 		if err != nil {
 			return err
 		}
 		targetFolderInfo.SetParentFolderID(&parentFolderID)
 
-		folder, err = fu.folderInfoRepository.Save(tx, targetFolderInfo)
+		if err := fu.folderBodyRepository.Copy(sourceFolderInfo.GetPath(), path); err != nil {
+			return err
+		}
+
+		folder, err = fu.folderInfoRepository.Create(tx, targetFolderInfo)
 		return err
 	}); err != nil {
 		if errors.Is(err, apiError.ErrNotFound) {

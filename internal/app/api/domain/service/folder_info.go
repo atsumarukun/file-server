@@ -10,22 +10,15 @@ import (
 
 type FolderInfoService interface {
 	Exists(*gorm.DB, *entity.FolderInfo) error
-	Copy(*gorm.DB, *entity.FolderInfo, string) (*entity.FolderInfo, error)
 }
 
 type folderInfoService struct {
 	folderInfoRepository repository.FolderInfoRepository
-	folderBodyRepository repository.FolderBodyRepository
-	fileInfoRepository   repository.FileInfoRepository
-	fileBodyRepository   repository.FileBodyRepository
 }
 
-func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository, folderBodyRepository repository.FolderBodyRepository, fileInfoRepository repository.FileInfoRepository, fileBodyRepository repository.FileBodyRepository) FolderInfoService {
+func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository) FolderInfoService {
 	return &folderInfoService{
 		folderInfoRepository: folderInfoRepository,
-		folderBodyRepository: folderBodyRepository,
-		fileInfoRepository:   fileInfoRepository,
-		fileBodyRepository:   fileBodyRepository,
 	}
 }
 
@@ -37,58 +30,4 @@ func (fs *folderInfoService) Exists(db *gorm.DB, folder *entity.FolderInfo) erro
 		return fmt.Errorf("%s is already exists", path)
 	}
 	return nil
-}
-
-func (fs *folderInfoService) Copy(db *gorm.DB, folder *entity.FolderInfo, path string) (*entity.FolderInfo, error) {
-	newFolder, err := entity.NewFolderInfo(nil, folder.GetName(), path, folder.GetIsHide())
-	if err != nil {
-		return nil, err
-	}
-
-	if err := fs.Exists(db, newFolder); err != nil {
-		return nil, err
-	}
-
-	if err := fs.folderBodyRepository.Create(path); err != nil {
-		return nil, err
-	}
-
-	children := folder.GetFolders()
-	if 0 < len(children) {
-		newChildren := make([]entity.FolderInfo, len(children))
-		for i := 0; i < len(children); i++ {
-			child, err := fs.folderInfoRepository.FindOneByIDWithChildren(db, children[i].GetID())
-			if err != nil {
-				return nil, err
-			}
-			newChild, err := fs.Copy(db, child, path+child.GetName()+"/")
-			if err != nil {
-				return nil, err
-			}
-			newChildren[i] = *newChild
-		}
-		newFolder.SetFolders(newChildren)
-	}
-
-	files := folder.GetFiles()
-	if 0 < len(files) {
-		newFiles := make([]entity.FileInfo, len(files))
-		for i, file := range files {
-			fileBody, err := fs.fileBodyRepository.Read(file.GetPath())
-			if err != nil {
-				return nil, err
-			}
-			fileBody.SetPath(path + file.GetName())
-			fs.fileBodyRepository.Create(fileBody)
-
-			newFile, err := entity.NewFileInfo(0, file.GetName(), path+file.GetName(), file.GetMimeType(), file.GetIsHide())
-			if err != nil {
-				return nil, err
-			}
-			newFiles[i] = *newFile
-		}
-		newFolder.SetFiles(newFiles)
-	}
-
-	return newFolder, nil
 }

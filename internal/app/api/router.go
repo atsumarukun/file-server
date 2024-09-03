@@ -15,7 +15,7 @@ func route(r *gin.Engine, db *gorm.DB) {
 	folderBodyRepository := infrastructure.NewFolderBodyInfrastructure()
 	fileInfoRepository := infrastructure.NewFileInfoInfrastructure()
 	fileBodyRepository := infrastructure.NewFileBodyInfrastructure()
-	folderInfoService := service.NewFolderInfoService(folderInfoRepository, folderBodyRepository, fileInfoRepository, fileBodyRepository)
+	folderInfoService := service.NewFolderInfoService(folderInfoRepository)
 	fileInfoService := service.NewFileInfoService(fileInfoRepository)
 	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
 	fileUsecase := usecase.NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)

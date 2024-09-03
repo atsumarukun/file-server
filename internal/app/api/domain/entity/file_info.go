@@ -123,3 +123,7 @@ func (f *FileInfo) SetUpdatedAt(updatedAt time.Time) {
 func (f *FileInfo) Move(oldPath string, newPath string) error {
 	return f.SetPath(strings.Replace(f.path, oldPath, newPath, 1))
 }
+
+func (f *FileInfo) Copy(path string) (*FileInfo, error) {
+	return NewFileInfo(0, f.name, path, f.mimeType, f.isHide)
+}

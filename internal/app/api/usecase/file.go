@@ -213,10 +213,11 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64) (*dto.FileDTO, *apiError
 		}
 
 		path := parentFolder.GetPath() + sourceFileInfo.GetName()
-		targetFileInfo, err := entity.NewFileInfo(folderID, sourceFileInfo.GetName(), path, sourceFileInfo.GetMimeType(), sourceFileInfo.GetIsHide())
+		targetFileInfo, err := sourceFileInfo.Copy(path)
 		if err != nil {
 			return err
 		}
+		targetFileInfo.SetFolderID(folderID)
 
 		targetFileBody := entity.NewFileBody(path, sourceFileBody.GetBody())
 		if err := fu.fileBodyRepository.Create(targetFileBody); err != nil {

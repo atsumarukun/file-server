@@ -139,3 +139,36 @@ func (f *FolderInfo) Move(oldPath string, newPath string) error {
 	}
 	return f.SetPath(strings.Replace(f.path, oldPath, newPath, 1))
 }
+
+func (f *FolderInfo) Copy(path string) (*FolderInfo, error) {
+	folder, err := NewFolderInfo(nil, f.name, path, f.isHide)
+	if err != nil {
+		return nil, err
+	}
+
+	if 0 < len(f.folders) {
+		folders := make([]FolderInfo, len(f.folders))
+		for i, v := range f.folders {
+			f, err := v.Copy(path + v.GetName() + "/")
+			if err != nil {
+				return nil, err
+			}
+			folders[i] = *f
+		}
+		folder.folders = folders
+	}
+
+	if 0 < len(f.files) {
+		files := make([]FileInfo, len(f.files))
+		for i, v := range f.files {
+			f, err := v.Copy(path + v.GetName())
+			if err != nil {
+				return nil, err
+			}
+			files[i] = *f
+		}
+		folder.files = files
+	}
+
+	return folder, nil
+}
