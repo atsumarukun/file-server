@@ -14,7 +14,15 @@ func NewFileInfoInfrastructure() repository.FileInfoRepository {
 	return &fileInfoInfrastructure{}
 }
 
-func (fi *fileInfoInfrastructure) Save(db *gorm.DB, file *entity.FileInfo) (*entity.FileInfo, error) {
+func (fi *fileInfoInfrastructure) Create(db *gorm.DB, file *entity.FileInfo) (*entity.FileInfo, error) {
+	fileModel := fi.entityToModel(file)
+	if err := db.Create(fileModel).Error; err != nil {
+		return nil, err
+	}
+	return fi.modelToEntity(fileModel)
+}
+
+func (fi *fileInfoInfrastructure) Update(db *gorm.DB, file *entity.FileInfo) (*entity.FileInfo, error) {
 	fileModel := fi.entityToModel(file)
 	if err := db.Save(fileModel).Error; err != nil {
 		return nil, err

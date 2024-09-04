@@ -57,7 +57,7 @@ func (fu *fileUsecase) Create(folderID uint64, name string, isHide bool, body []
 			return err
 		}
 
-		file, err = fu.fileInfoRepository.Save(tx, fileInfo)
+		file, err = fu.fileInfoRepository.Create(tx, fileInfo)
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool) (*dto.FileDTO
 			}
 		}
 
-		file, err = fu.fileInfoRepository.Save(tx, fileInfo)
+		file, err = fu.fileInfoRepository.Update(tx, fileInfo)
 		return err
 	}); err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64) (*dto.FileDTO, error) {
 			return err
 		}
 
-		file, err = fu.fileInfoRepository.Save(tx, fileInfo)
+		file, err = fu.fileInfoRepository.Update(tx, fileInfo)
 		return err
 	}); err != nil {
 		return nil, err
@@ -185,7 +185,7 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64) (*dto.FileDTO, error) {
 			return err
 		}
 
-		file, err = fu.fileInfoRepository.Save(tx, targetFileInfo)
+		file, err = fu.fileInfoRepository.Create(tx, targetFileInfo)
 		return err
 	}); err != nil {
 		return nil, err
