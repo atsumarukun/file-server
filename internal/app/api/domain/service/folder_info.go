@@ -1,9 +1,9 @@
 package service
 
 import (
+	"errors"
 	"file-server/internal/app/api/domain/entity"
 	"file-server/internal/app/api/domain/repository"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -24,10 +24,12 @@ func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository) 
 
 func (fs *folderInfoService) Exists(db *gorm.DB, folder *entity.FolderInfo) error {
 	path := folder.GetPath()
-	if checkFolder, err := fs.folderInfoRepository.FindOneByPath(db, path); err != nil {
-		return err
-	} else if checkFolder != nil {
-		return fmt.Errorf("%s is already exists", path)
+	if _, err := fs.folderInfoRepository.FindOneByPath(db, path); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		} else {
+			return err
+		}
 	}
 	return nil
 }

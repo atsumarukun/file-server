@@ -1,9 +1,9 @@
 package service
 
 import (
+	"errors"
 	"file-server/internal/app/api/domain/entity"
 	"file-server/internal/app/api/domain/repository"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -24,10 +24,12 @@ func NewFileInfoService(fileInfoRepository repository.FileInfoRepository) FileIn
 
 func (fs *fileInfoService) Exists(db *gorm.DB, file *entity.FileInfo) error {
 	path := file.GetPath()
-	if checkFile, err := fs.fileInfoRepository.FindOneByPath(db, path); err != nil {
-		return err
-	} else if checkFile != nil {
-		return fmt.Errorf("%s is already exists", path)
+	if _, err := fs.fileInfoRepository.FindOneByPath(db, path); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		} else {
+			return err
+		}
 	}
 	return nil
 }
