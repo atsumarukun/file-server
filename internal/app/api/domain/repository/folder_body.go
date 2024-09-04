@@ -1,7 +1,9 @@
 package repository
 
+import "file-server/internal/app/api/domain/entity"
+
 type FolderBodyRepository interface {
-	Create(string) error
+	Create(*entity.FolderBody) error
 	Update(string, string) error
-	Copy(string, string) error
+	Read(string) (*entity.FolderBody, error)
 }

@@ -180,7 +180,7 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64) (*dto.FileDTO, error) {
 		}
 		targetFileInfo.SetFolderID(folderID)
 
-		targetFileBody := entity.NewFileBody(path, sourceFileBody.GetBody())
+		targetFileBody := sourceFileBody.Copy(path)
 		if err := fu.fileBodyRepository.Create(targetFileBody); err != nil {
 			return err
 		}

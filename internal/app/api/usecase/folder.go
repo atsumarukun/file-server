@@ -60,7 +60,9 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 			return err
 		}
 
-		return fu.folderBodyRepository.Create(path)
+		folderBody := entity.NewFolderBody(path)
+
+		return fu.folderBodyRepository.Create(folderBody)
 	}); err != nil {
 		return nil, err
 	}
@@ -169,6 +171,11 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 			return err
 		}
 
+		sourceFolderBody, err := fu.folderBodyRepository.Read(sourceFolderInfo.GetPath())
+		if err != nil {
+			return err
+		}
+
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
 		if err != nil {
 			return err
@@ -181,7 +188,8 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		}
 		targetFolderInfo.SetParentFolderID(&parentFolderID)
 
-		if err := fu.folderBodyRepository.Copy(sourceFolderInfo.GetPath(), path); err != nil {
+		targetFolderBody := sourceFolderBody.Copy(path)
+		if err := fu.folderBodyRepository.Create(targetFolderBody); err != nil {
 			return err
 		}
 

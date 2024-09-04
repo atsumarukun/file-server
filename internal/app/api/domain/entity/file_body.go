@@ -29,3 +29,7 @@ func (f *FileBody) GetBody() []byte {
 func (f *FileBody) SetBody(body []byte) {
 	f.body = body
 }
+
+func (f *FileBody) Copy(path string) *FileBody {
+	return NewFileBody(path, f.body)
+}
