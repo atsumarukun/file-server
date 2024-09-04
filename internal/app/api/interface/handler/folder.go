@@ -2,8 +2,8 @@ package handler
 
 import (
 	"errors"
-	"file-server/internal/app/api/interface/request"
-	"file-server/internal/app/api/interface/response"
+	"file-server/internal/app/api/interface/requests"
+	"file-server/internal/app/api/interface/responses"
 	"file-server/internal/app/api/usecase"
 	"file-server/internal/app/api/usecase/dto"
 	"net/http"
@@ -33,13 +33,13 @@ func NewFolderHandler(usecase usecase.FolderUsecase) FolderHandler {
 }
 
 func (fh *folderHandler) Create(c *gin.Context) {
-	var folder request.CreateFolderRequest
-	if err := c.ShouldBindJSON(&folder); err != nil {
+	var request requests.CreateFolderRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	folderDTO, err := fh.usecase.Create(folder.ParentFolderID, folder.Name, folder.IsHide)
+	dto, err := fh.usecase.Create(request.ParentFolderID, request.Name, request.IsHide)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -49,7 +49,7 @@ func (fh *folderHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *folderHandler) Update(c *gin.Context) {
@@ -59,13 +59,13 @@ func (fh *folderHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var folder request.UpdateFolderRequest
-	if err := c.ShouldBindJSON(&folder); err != nil {
+	var request requests.UpdateFolderRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	folderDTO, err := fh.usecase.Update(id, folder.Name, folder.IsHide)
+	dto, err := fh.usecase.Update(id, request.Name, request.IsHide)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -75,7 +75,7 @@ func (fh *folderHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *folderHandler) Remove(c *gin.Context) {
@@ -104,13 +104,13 @@ func (fh *folderHandler) Move(c *gin.Context) {
 		return
 	}
 
-	var folder request.MoveFolderRequest
-	if err := c.ShouldBindJSON(&folder); err != nil {
+	var request requests.MoveFolderRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	folderDTO, err := fh.usecase.Move(id, folder.ParentFolderID)
+	dto, err := fh.usecase.Move(id, request.ParentFolderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -120,7 +120,7 @@ func (fh *folderHandler) Move(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *folderHandler) Copy(c *gin.Context) {
@@ -130,13 +130,13 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	var folder request.CopyFolderRequest
-	if err := c.ShouldBindJSON(&folder); err != nil {
+	var request requests.CopyFolderRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	folderDTO, err := fh.usecase.Copy(id, folder.ParentFolderID)
+	dto, err := fh.usecase.Copy(id, request.ParentFolderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -146,13 +146,13 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *folderHandler) FindOne(c *gin.Context) {
 	path := c.Param("path")
 
-	folderDTO, err := fh.usecase.FindOne(path)
+	dto, err := fh.usecase.FindOne(path)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -162,22 +162,22 @@ func (fh *folderHandler) FindOne(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(folderDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
-func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *response.FolderResponse {
-	var folders []response.FolderResponse
+func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *responses.FolderResponse {
+	var folders []responses.FolderResponse
 	if folder.Folders != nil {
-		folders = make([]response.FolderResponse, len(folder.Folders))
+		folders = make([]responses.FolderResponse, len(folder.Folders))
 		for i, v := range folder.Folders {
 			folders[i] = *fh.dtoToResponse(&v)
 		}
 	}
-	var files []response.FileResponse
+	var files []responses.FileResponse
 	if folder.Files != nil {
-		files = make([]response.FileResponse, len(folder.Files))
+		files = make([]responses.FileResponse, len(folder.Files))
 		for i, v := range folder.Files {
-			files[i] = response.FileResponse{
+			files[i] = responses.FileResponse{
 				ID:        v.ID,
 				FolderID:  v.FolderID,
 				Name:      v.Name,
@@ -189,7 +189,7 @@ func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *response.FolderRe
 			}
 		}
 	}
-	return &response.FolderResponse{
+	return &responses.FolderResponse{
 		ID:             folder.ID,
 		ParentFolderID: folder.ParentFolderID,
 		Name:           folder.Name,

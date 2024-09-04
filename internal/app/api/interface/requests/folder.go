@@ -1,4 +1,4 @@
-package request
+package requests
 
 type CreateFolderRequest struct {
 	ParentFolderID uint64 `json:"parent_folder_id"`

@@ -1,4 +1,4 @@
-package request
+package requests
 
 type CreateFileRequest struct {
 	FolderID uint64 `form:"folder_id"`

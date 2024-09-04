@@ -2,8 +2,8 @@ package handler
 
 import (
 	"errors"
-	"file-server/internal/app/api/interface/request"
-	"file-server/internal/app/api/interface/response"
+	"file-server/internal/app/api/interface/requests"
+	"file-server/internal/app/api/interface/responses"
 	"file-server/internal/app/api/usecase"
 	"file-server/internal/app/api/usecase/dto"
 	"io"
@@ -45,13 +45,13 @@ func (fh *fileHandler) Create(c *gin.Context) {
 		return
 	}
 
-	var file request.CreateFileRequest
-	if err := c.Bind(&file); err != nil {
+	var request requests.CreateFileRequest
+	if err := c.Bind(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	fileDTO, err := fh.usecase.Create(file.FolderID, header.Filename, file.IsHide, body)
+	dto, err := fh.usecase.Create(request.FolderID, header.Filename, request.IsHide, body)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -61,7 +61,7 @@ func (fh *fileHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(fileDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *fileHandler) Update(c *gin.Context) {
@@ -71,13 +71,13 @@ func (fh *fileHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var file request.UpdateFileRequest
-	if err := c.ShouldBindJSON(&file); err != nil {
+	var request requests.UpdateFileRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	fileDTO, err := fh.usecase.Update(id, file.Name, file.IsHide)
+	dto, err := fh.usecase.Update(id, request.Name, request.IsHide)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -87,7 +87,7 @@ func (fh *fileHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(fileDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *fileHandler) Remove(c *gin.Context) {
@@ -116,13 +116,13 @@ func (fh *fileHandler) Move(c *gin.Context) {
 		return
 	}
 
-	var file request.MoveFileRequest
-	if err := c.ShouldBindJSON(&file); err != nil {
+	var request requests.MoveFileRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	fileDTO, err := fh.usecase.Move(id, file.FolderID)
+	dto, err := fh.usecase.Move(id, request.FolderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -132,7 +132,7 @@ func (fh *fileHandler) Move(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(fileDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
 func (fh *fileHandler) Copy(c *gin.Context) {
@@ -142,13 +142,13 @@ func (fh *fileHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	var file request.CopyFileRequest
-	if err := c.ShouldBindJSON(&file); err != nil {
+	var request requests.CopyFileRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	fileDTO, err := fh.usecase.Copy(id, file.FolderID)
+	dto, err := fh.usecase.Copy(id, request.FolderID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -158,11 +158,11 @@ func (fh *fileHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(fileDTO))
+	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
 }
 
-func (fh *fileHandler) dtoToResponse(file *dto.FileDTO) *response.FileResponse {
-	return &response.FileResponse{
+func (fh *fileHandler) dtoToResponse(file *dto.FileDTO) *responses.FileResponse {
+	return &responses.FileResponse{
 		ID:        file.ID,
 		FolderID:  file.FolderID,
 		Name:      file.Name,
