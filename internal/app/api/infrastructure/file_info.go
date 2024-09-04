@@ -30,11 +30,7 @@ func (fi *fileInfoInfrastructure) Remove(db *gorm.DB, file *entity.FileInfo) err
 func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.FileInfo, error) {
 	var fileModel model.FileModel
 	if err := db.First(&fileModel, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return fi.modelToEntity(&fileModel)
 }
@@ -42,11 +38,7 @@ func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.F
 func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FileInfo, error) {
 	var fileModel model.FileModel
 	if err := db.First(&fileModel, "path = ?", path).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return fi.modelToEntity(&fileModel)
 }

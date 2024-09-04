@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"file-server/internal/app/api/interface/request"
 	"file-server/internal/app/api/interface/response"
 	"file-server/internal/app/api/usecase"
@@ -10,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type FileHandler interface {
@@ -49,9 +51,13 @@ func (fh *fileHandler) Create(c *gin.Context) {
 		return
 	}
 
-	fileDTO, apiErr := fh.usecase.Create(file.FolderID, header.Filename, file.IsHide, body)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	fileDTO, err := fh.usecase.Create(file.FolderID, header.Filename, file.IsHide, body)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -71,9 +77,13 @@ func (fh *fileHandler) Update(c *gin.Context) {
 		return
 	}
 
-	fileDTO, apiErr := fh.usecase.Update(id, file.Name, file.IsHide)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	fileDTO, err := fh.usecase.Update(id, file.Name, file.IsHide)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -87,8 +97,12 @@ func (fh *fileHandler) Remove(c *gin.Context) {
 		return
 	}
 
-	if apiErr := fh.usecase.Remove(id); apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	if err := fh.usecase.Remove(id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -108,9 +122,13 @@ func (fh *fileHandler) Move(c *gin.Context) {
 		return
 	}
 
-	fileDTO, apiErr := fh.usecase.Move(id, file.FolderID)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	fileDTO, err := fh.usecase.Move(id, file.FolderID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -130,9 +148,13 @@ func (fh *fileHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	fileDTO, apiErr := fh.usecase.Copy(id, file.FolderID)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	fileDTO, err := fh.usecase.Copy(id, file.FolderID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

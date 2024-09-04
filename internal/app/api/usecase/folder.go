@@ -1,26 +1,23 @@
 package usecase
 
 import (
-	"errors"
 	"file-server/internal/app/api/domain/entity"
 	"file-server/internal/app/api/domain/repository"
 	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/usecase/dto"
-	apiError "file-server/internal/pkg/errors"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"gorm.io/gorm"
 )
 
 type FolderUsecase interface {
-	Create(uint64, string, bool) (*dto.FolderDTO, *apiError.Error)
-	Update(uint64, string, bool) (*dto.FolderDTO, *apiError.Error)
-	Remove(uint64) *apiError.Error
-	Move(uint64, uint64) (*dto.FolderDTO, *apiError.Error)
-	Copy(uint64, uint64) (*dto.FolderDTO, *apiError.Error)
-	FindOne(string) (*dto.FolderDTO, *apiError.Error)
+	Create(uint64, string, bool) (*dto.FolderDTO, error)
+	Update(uint64, string, bool) (*dto.FolderDTO, error)
+	Remove(uint64) error
+	Move(uint64, uint64) (*dto.FolderDTO, error)
+	Copy(uint64, uint64) (*dto.FolderDTO, error)
+	FindOne(string) (*dto.FolderDTO, error)
 }
 
 type folderUsecase struct {
@@ -39,15 +36,12 @@ func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRep
 	}
 }
 
-func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
 		if err != nil {
 			return err
-		}
-		if parentFolder == nil {
-			return apiError.ErrNotFound
 		}
 
 		path := parentFolder.GetPath() + name + "/"
@@ -68,25 +62,18 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 
 		return fu.folderBodyRepository.Create(path)
 	}); err != nil {
-		if errors.Is(err, apiError.ErrNotFound) {
-			return nil, apiError.NewError(http.StatusNotFound, err.Error())
-		} else {
-			return nil, apiError.NewError(http.StatusInternalServerError, err.Error())
-		}
+		return nil, err
 	}
 
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
-		}
-		if folderInfo == nil {
-			return apiError.ErrNotFound
 		}
 
 		oldName := folderInfo.GetName()
@@ -113,55 +100,38 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 		folder, err = fu.folderInfoRepository.Update(tx, folderInfo)
 		return err
 	}); err != nil {
-		if errors.Is(err, apiError.ErrNotFound) {
-			return nil, apiError.NewError(http.StatusNotFound, err.Error())
-		} else {
-			return nil, apiError.NewError(http.StatusInternalServerError, err.Error())
-		}
+		return nil, err
 	}
 
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Remove(id uint64) *apiError.Error {
+func (fu *folderUsecase) Remove(id uint64) error {
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
-		if folderInfo == nil {
-			return apiError.ErrNotFound
-		}
 
 		return fu.folderInfoRepository.Remove(tx, folderInfo)
 	}); err != nil {
-		if errors.Is(err, apiError.ErrNotFound) {
-			return apiError.NewError(http.StatusNotFound, err.Error())
-		} else {
-			return apiError.NewError(http.StatusInternalServerError, err.Error())
-		}
+		return err
 	}
 
 	return nil
 }
 
-func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
-		if folderInfo == nil {
-			return apiError.ErrNotFound
-		}
 
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
 		if err != nil {
 			return err
-		}
-		if parentFolder == nil {
-			return apiError.ErrNotFound
 		}
 
 		oldPath := folderInfo.GetPath()
@@ -185,33 +155,23 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		folder, err = fu.folderInfoRepository.Update(tx, folderInfo)
 		return err
 	}); err != nil {
-		if errors.Is(err, apiError.ErrNotFound) {
-			return nil, apiError.NewError(http.StatusNotFound, err.Error())
-		} else {
-			return nil, apiError.NewError(http.StatusInternalServerError, err.Error())
-		}
+		return nil, err
 	}
 
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
 		}
-		if sourceFolderInfo == nil {
-			return apiError.ErrNotFound
-		}
 
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
 		if err != nil {
 			return err
-		}
-		if parentFolder == nil {
-			return apiError.ErrNotFound
 		}
 
 		path := parentFolder.GetPath() + sourceFolderInfo.GetName() + "/"
@@ -228,24 +188,18 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		folder, err = fu.folderInfoRepository.Create(tx, targetFolderInfo)
 		return err
 	}); err != nil {
-		if errors.Is(err, apiError.ErrNotFound) {
-			return nil, apiError.NewError(http.StatusNotFound, err.Error())
-		} else {
-			return nil, apiError.NewError(http.StatusInternalServerError, err.Error())
-		}
+		return nil, err
 	}
 
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, *apiError.Error) {
+func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, error) {
 	folder, err := fu.folderInfoRepository.FindOneByPathWithChildren(fu.db, path)
 	if err != nil {
-		return nil, apiError.NewError(http.StatusNotFound, err.Error())
+		return nil, err
 	}
-	if folder == nil {
-		return nil, apiError.NewError(http.StatusNotFound, apiError.ErrNotFound.Error())
-	}
+
 	return fu.entityToDTO(folder), nil
 }
 

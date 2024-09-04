@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"file-server/internal/app/api/interface/request"
 	"file-server/internal/app/api/interface/response"
 	"file-server/internal/app/api/usecase"
@@ -9,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type FolderHandler interface {
@@ -37,9 +39,13 @@ func (fh *folderHandler) Create(c *gin.Context) {
 		return
 	}
 
-	folderDTO, apiErr := fh.usecase.Create(folder.ParentFolderID, folder.Name, folder.IsHide)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	folderDTO, err := fh.usecase.Create(folder.ParentFolderID, folder.Name, folder.IsHide)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -59,9 +65,13 @@ func (fh *folderHandler) Update(c *gin.Context) {
 		return
 	}
 
-	folderDTO, apiErr := fh.usecase.Update(id, folder.Name, folder.IsHide)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	folderDTO, err := fh.usecase.Update(id, folder.Name, folder.IsHide)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -75,8 +85,12 @@ func (fh *folderHandler) Remove(c *gin.Context) {
 		return
 	}
 
-	if apiErr := fh.usecase.Remove(id); apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	if err := fh.usecase.Remove(id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -96,9 +110,13 @@ func (fh *folderHandler) Move(c *gin.Context) {
 		return
 	}
 
-	folderDTO, apiErr := fh.usecase.Move(id, folder.ParentFolderID)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	folderDTO, err := fh.usecase.Move(id, folder.ParentFolderID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -118,9 +136,13 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	folderDTO, apiErr := fh.usecase.Copy(id, folder.ParentFolderID)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	folderDTO, err := fh.usecase.Copy(id, folder.ParentFolderID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -130,9 +152,13 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 func (fh *folderHandler) FindOne(c *gin.Context) {
 	path := c.Param("path")
 
-	folderDTO, apiErr := fh.usecase.FindOne(path)
-	if apiErr != nil {
-		c.JSON(apiErr.Code, apiErr.Message)
+	folderDTO, err := fh.usecase.FindOne(path)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, err.Error())
+		} else {
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

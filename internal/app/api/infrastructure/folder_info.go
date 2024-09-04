@@ -62,11 +62,7 @@ func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInf
 func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return fi.modelToEntity(&folderModel)
 }
@@ -74,11 +70,7 @@ func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity
 func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.First(&folderModel, "path = ?", path).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return fi.modelToEntity(&folderModel)
 }
@@ -86,11 +78,7 @@ func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*en
 func (fi *folderInfoInfrastructure) FindOneByPathWithChildren(db *gorm.DB, path string) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "path = ?", path).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	return fi.modelToEntity(&folderModel)
 }
@@ -98,11 +86,7 @@ func (fi *folderInfoInfrastructure) FindOneByPathWithChildren(db *gorm.DB, path 
 func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ?", id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil
-		} else {
-			return nil, err
-		}
+		return nil, err
 	}
 	folder, err := fi.modelToEntity(&folderModel)
 	if err != nil {
