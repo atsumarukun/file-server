@@ -92,17 +92,16 @@ func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64)
 	if err != nil {
 		return nil, err
 	}
-	children := folder.GetFolders()
-	if 0 < len(children) {
-		newChildren := make([]entity.FolderInfo, len(children))
-		for i, v := range children {
-			newChild, err := fi.FindOneByIDWithLower(db, v.GetID())
+	folders := folder.GetFolders()
+	if 0 < len(folders) {
+		for i, v := range folders {
+			f, err := fi.FindOneByIDWithLower(db, v.GetID())
 			if err != nil {
 				return nil, err
 			}
-			newChildren[i] = *newChild
+			folders[i] = *f
 		}
-		folder.SetFolders(newChildren)
+		folder.SetFolders(folders)
 	}
 	return folder, nil
 }

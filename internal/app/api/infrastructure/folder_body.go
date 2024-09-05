@@ -56,15 +56,15 @@ func (fi *folderBodyInfrastructure) Read(path string) (*entity.FolderBody, error
 
 	folder := entity.NewFolderBody(path)
 
-	var children []entity.FolderBody
+	var folders []entity.FolderBody
 	var files []entity.FileBody
 	for _, v := range entry {
 		if v.IsDir() {
-			child, err := fi.Read(path + v.Name() + "/")
+			f, err := fi.Read(path + v.Name() + "/")
 			if err != nil {
 				return nil, err
 			}
-			children = append(children, *child)
+			folders = append(folders, *f)
 		} else {
 			body, err := os.ReadFile(config.STORAGE_PATH + path + v.Name())
 			if err != nil {
@@ -75,7 +75,7 @@ func (fi *folderBodyInfrastructure) Read(path string) (*entity.FolderBody, error
 		}
 	}
 
-	folder.SetFolders(children)
+	folder.SetFolders(folders)
 	folder.SetFiles(files)
 
 	return folder, nil
