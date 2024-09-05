@@ -78,13 +78,15 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 			return err
 		}
 
-		oldName := folderInfo.GetName()
 		folderInfo.SetIsHide(isHide)
 
-		if name != oldName {
-			folderInfo.SetName(name)
+		if name != folderInfo.GetName() {
 			oldPath := folderInfo.GetPath()
-			path := oldPath[:strings.LastIndex(oldPath, oldName)] + name + "/"
+			path := oldPath[:strings.LastIndex(oldPath, folderInfo.GetName())] + name + "/"
+
+			if err := folderInfo.SetName(name); err != nil {
+				return err
+			}
 
 			if err := folderInfo.Move(oldPath, path); err != nil {
 				return err
@@ -145,6 +147,7 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		if err := folderInfo.Move(oldPath, path); err != nil {
 			return err
 		}
+		folderInfo.SetParentFolderID(&parentFolderID)
 
 		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
 			return err

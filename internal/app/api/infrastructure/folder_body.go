@@ -58,6 +58,7 @@ func (fi *folderBodyInfrastructure) Read(path string) (*entity.FolderBody, error
 
 	var folders []entity.FolderBody
 	var files []entity.FileBody
+
 	for _, v := range entry {
 		if v.IsDir() {
 			f, err := fi.Read(path + v.Name() + "/")

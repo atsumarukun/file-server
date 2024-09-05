@@ -86,10 +86,11 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool) (*dto.FileDTO
 			oldPath := fileInfo.GetPath()
 			path := oldPath[:strings.LastIndex(oldPath, fileInfo.GetName())] + name
 
-			if err := fileInfo.SetPath(path); err != nil {
+			if err := fileInfo.SetName(name); err != nil {
 				return err
 			}
-			if err := fileInfo.SetName(name); err != nil {
+
+			if err := fileInfo.Move(oldPath, path); err != nil {
 				return err
 			}
 
@@ -137,10 +138,15 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64) (*dto.FileDTO, error) {
 
 		oldPath := fileInfo.GetPath()
 		path := parentFolder.GetPath() + fileInfo.GetName()
-		if err := fileInfo.SetPath(path); err != nil {
+
+		if err := fileInfo.Move(oldPath, path); err != nil {
 			return err
 		}
 		fileInfo.SetFolderID(folderID)
+
+		if err := fu.fileInfoService.Exists(tx, fileInfo); err != nil {
+			return err
+		}
 
 		if err := fu.fileBodyRepository.Update(oldPath, path); err != nil {
 			return err
