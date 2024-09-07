@@ -13,8 +13,9 @@ const (
 )
 
 var (
-	API_PORT  int
-	MYSQL_DSN string
+	API_PORT       int
+	MYSQL_DSN      string
+	JWT_SECRET_KEY string
 )
 
 func Load() error {
@@ -32,6 +33,8 @@ func Load() error {
 		return err
 	}
 	MYSQL_DSN = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_HOST"), databasePort, os.Getenv("MYSQL_DATABASE"))
+
+	JWT_SECRET_KEY = os.Getenv("JWT_SECRET_KEY")
 
 	return nil
 }

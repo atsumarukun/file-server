@@ -15,12 +15,15 @@ func route(r *gin.Engine, db *gorm.DB) {
 	folderBodyRepository := infrastructure.NewFolderBodyInfrastructure()
 	fileInfoRepository := infrastructure.NewFileInfoInfrastructure()
 	fileBodyRepository := infrastructure.NewFileBodyInfrastructure()
+	credentialRepository := infrastructure.NewCredentialInfrastructure()
 	folderInfoService := service.NewFolderInfoService(folderInfoRepository)
 	fileInfoService := service.NewFileInfoService(fileInfoRepository)
 	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
 	fileUsecase := usecase.NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
+	authUsecase := usecase.NewAuthUsecase(db, credentialRepository)
 	folderHandler := handler.NewFolderHandler(folderUsecase)
 	fileHandler := handler.NewFileHandler(fileUsecase)
+	authHandler := handler.NewAuthHandler(authUsecase)
 
 	folders := r.Group("/folders")
 	{
@@ -39,6 +42,11 @@ func route(r *gin.Engine, db *gorm.DB) {
 		files.DELETE("/:id", fileHandler.Remove)
 		files.PUT("/:id/move", fileHandler.Move)
 		files.POST("/:id/copy", fileHandler.Copy)
+	}
+
+	auth := r.Group("/auth")
+	{
+		auth.POST("/signin", authHandler.Signin)
 	}
 
 	r.Static("/static", "./storage")
