@@ -24,10 +24,10 @@ func Serve() {
 	if err != nil {
 		panic(err)
 	}
+	inject(db)
 
 	r := gin.Default()
-
-	route(r, db)
+	route(r)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt, os.Kill)
 	defer stop()

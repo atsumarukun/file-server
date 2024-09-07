@@ -1,30 +1,8 @@
 package api
 
-import (
-	"file-server/internal/app/api/domain/service"
-	"file-server/internal/app/api/infrastructure"
-	"file-server/internal/app/api/interface/handler"
-	"file-server/internal/app/api/usecase"
+import "github.com/gin-gonic/gin"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-)
-
-func route(r *gin.Engine, db *gorm.DB) {
-	folderInfoRepository := infrastructure.NewFolderInfoInfrastructure()
-	folderBodyRepository := infrastructure.NewFolderBodyInfrastructure()
-	fileInfoRepository := infrastructure.NewFileInfoInfrastructure()
-	fileBodyRepository := infrastructure.NewFileBodyInfrastructure()
-	credentialRepository := infrastructure.NewCredentialInfrastructure()
-	folderInfoService := service.NewFolderInfoService(folderInfoRepository)
-	fileInfoService := service.NewFileInfoService(fileInfoRepository)
-	folderUsecase := usecase.NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
-	fileUsecase := usecase.NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
-	authUsecase := usecase.NewAuthUsecase(db, credentialRepository)
-	folderHandler := handler.NewFolderHandler(folderUsecase)
-	fileHandler := handler.NewFileHandler(fileUsecase)
-	authHandler := handler.NewAuthHandler(authUsecase)
-
+func route(r *gin.Engine) {
 	folders := r.Group("/folders")
 	{
 		folders.POST("/", folderHandler.Create)
