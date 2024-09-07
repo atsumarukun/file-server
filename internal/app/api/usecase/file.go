@@ -14,10 +14,10 @@ import (
 
 type FileUsecase interface {
 	Create(uint64, string, bool, []byte) (*dto.FileDTO, error)
-	Update(uint64, string, bool) (*dto.FileDTO, error)
-	Remove(uint64) error
-	Move(uint64, uint64) (*dto.FileDTO, error)
-	Copy(uint64, uint64) (*dto.FileDTO, error)
+	Update(uint64, string, bool, bool) (*dto.FileDTO, error)
+	Remove(uint64, bool) error
+	Move(uint64, uint64, bool) (*dto.FileDTO, error)
+	Copy(uint64, uint64, bool) (*dto.FileDTO, error)
 }
 
 type fileUsecase struct {
@@ -75,10 +75,16 @@ func (fu *fileUsecase) Create(folderID uint64, name string, isHide bool, body []
 	return fu.entityToDTO(file), nil
 }
 
-func (fu *fileUsecase) Update(id uint64, name string, isHide bool) (*dto.FileDTO, error) {
+func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHiddenObject bool) (*dto.FileDTO, error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
+		var fileInfo *entity.FileInfo
+		var err error
+		if isDisplayHiddenObject {
+			fileInfo, err = fu.fileInfoRepository.FindOneByID(tx, id)
+		} else {
+			fileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -111,9 +117,15 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool) (*dto.FileDTO
 	return fu.entityToDTO(file), nil
 }
 
-func (fu *fileUsecase) Remove(id uint64) error {
+func (fu *fileUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
+		var fileInfo *entity.FileInfo
+		var err error
+		if isDisplayHiddenObject {
+			fileInfo, err = fu.fileInfoRepository.FindOneByID(tx, id)
+		} else {
+			fileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -126,10 +138,16 @@ func (fu *fileUsecase) Remove(id uint64) error {
 	return nil
 }
 
-func (fu *fileUsecase) Move(id uint64, folderID uint64) (*dto.FileDTO, error) {
+func (fu *fileUsecase) Move(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileDTO, error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		fileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
+		var fileInfo *entity.FileInfo
+		var err error
+		if isDisplayHiddenObject {
+			fileInfo, err = fu.fileInfoRepository.FindOneByID(tx, id)
+		} else {
+			fileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -166,10 +184,16 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64) (*dto.FileDTO, error) {
 	return fu.entityToDTO(file), nil
 }
 
-func (fu *fileUsecase) Copy(id uint64, folderID uint64) (*dto.FileDTO, error) {
+func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileDTO, error) {
 	var file *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		sourceFileInfo, err := fu.fileInfoRepository.FindOneByID(tx, id)
+		var sourceFileInfo *entity.FileInfo
+		var err error
+		if isDisplayHiddenObject {
+			sourceFileInfo, err = fu.fileInfoRepository.FindOneByID(tx, id)
+		} else {
+			sourceFileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}

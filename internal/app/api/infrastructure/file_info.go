@@ -43,6 +43,14 @@ func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.F
 	return fi.modelToEntity(&fileModel)
 }
 
+func (fi *fileInfoInfrastructure) FindOneByIDAndIsHide(db *gorm.DB, id uint64, isHide bool) (*entity.FileInfo, error) {
+	var fileModel model.FileModel
+	if err := db.Debug().First(&fileModel, "id = ? and is_hide = ?", id, isHide).Error; err != nil {
+		return nil, err
+	}
+	return fi.modelToEntity(&fileModel)
+}
+
 func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FileInfo, error) {
 	var fileModel model.FileModel
 	if err := db.First(&fileModel, "path = ?", path).Error; err != nil {
