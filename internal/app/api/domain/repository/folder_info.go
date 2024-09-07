@@ -13,5 +13,7 @@ type FolderInfoRepository interface {
 	FindOneByID(*gorm.DB, uint64) (*entity.FolderInfo, error)
 	FindOneByPath(*gorm.DB, string) (*entity.FolderInfo, error)
 	FindOneByPathWithChildren(*gorm.DB, string) (*entity.FolderInfo, error)
+	FindOneByPathAndIsHideWithChildren(*gorm.DB, string, bool) (*entity.FolderInfo, error)
 	FindOneByIDWithLower(*gorm.DB, uint64) (*entity.FolderInfo, error)
+	FindOneByIDAndIsHideWithLower(*gorm.DB, uint64, bool) (*entity.FolderInfo, error)
 }

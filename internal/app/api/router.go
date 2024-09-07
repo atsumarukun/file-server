@@ -28,6 +28,9 @@ func route(r *gin.Engine, db *gorm.DB) {
 	folders := r.Group("/folders")
 	{
 		folders.POST("/", folderHandler.Create)
+
+		folders.Use(authMiddleware())
+
 		folders.GET("/*path", folderHandler.FindOne)
 		folders.PUT("/:id", folderHandler.Update)
 		folders.DELETE("/:id", folderHandler.Remove)

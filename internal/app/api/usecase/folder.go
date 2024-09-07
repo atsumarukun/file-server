@@ -13,11 +13,11 @@ import (
 
 type FolderUsecase interface {
 	Create(uint64, string, bool) (*dto.FolderDTO, error)
-	Update(uint64, string, bool) (*dto.FolderDTO, error)
-	Remove(uint64) error
-	Move(uint64, uint64) (*dto.FolderDTO, error)
-	Copy(uint64, uint64) (*dto.FolderDTO, error)
-	FindOne(string) (*dto.FolderDTO, error)
+	Update(uint64, string, bool, bool) (*dto.FolderDTO, error)
+	Remove(uint64, bool) error
+	Move(uint64, uint64, bool) (*dto.FolderDTO, error)
+	Copy(uint64, uint64, bool) (*dto.FolderDTO, error)
+	FindOne(string, bool) (*dto.FolderDTO, error)
 }
 
 type folderUsecase struct {
@@ -72,10 +72,16 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Update(id uint64, name string, isHide bool, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		var folderInfo *entity.FolderInfo
+		var err error
+		if isDisplayHiddenObject {
+			folderInfo, err = fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		} else {
+			folderInfo, err = fu.folderInfoRepository.FindOneByIDAndIsHideWithLower(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -118,9 +124,15 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Remove(id uint64) error {
+func (fu *folderUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		var folderInfo *entity.FolderInfo
+		var err error
+		if isDisplayHiddenObject {
+			folderInfo, err = fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		} else {
+			folderInfo, err = fu.folderInfoRepository.FindOneByIDAndIsHideWithLower(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -137,10 +149,16 @@ func (fu *folderUsecase) Remove(id uint64) error {
 	return nil
 }
 
-func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Move(id uint64, parentFolderID uint64, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		var folderInfo *entity.FolderInfo
+		var err error
+		if isDisplayHiddenObject {
+			folderInfo, err = fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		} else {
+			folderInfo, err = fu.folderInfoRepository.FindOneByIDAndIsHideWithLower(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -184,10 +202,16 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
 	var folder *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		sourceFolderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		var sourceFolderInfo *entity.FolderInfo
+		var err error
+		if isDisplayHiddenObject {
+			sourceFolderInfo, err = fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
+		} else {
+			sourceFolderInfo, err = fu.folderInfoRepository.FindOneByIDAndIsHideWithLower(tx, id, false)
+		}
 		if err != nil {
 			return err
 		}
@@ -223,8 +247,14 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 	return fu.entityToDTO(folder), nil
 }
 
-func (fu *folderUsecase) FindOne(path string) (*dto.FolderDTO, error) {
-	folder, err := fu.folderInfoRepository.FindOneByPathWithChildren(fu.db, path)
+func (fu *folderUsecase) FindOne(path string, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
+	var folder *entity.FolderInfo
+	var err error
+	if isDisplayHiddenObject {
+		folder, err = fu.folderInfoRepository.FindOneByPathWithChildren(fu.db, path)
+	} else {
+		folder, err = fu.folderInfoRepository.FindOneByPathAndIsHideWithChildren(fu.db, path, false)
+	}
 	if err != nil {
 		return nil, err
 	}

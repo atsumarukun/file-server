@@ -83,9 +83,40 @@ func (fi *folderInfoInfrastructure) FindOneByPathWithChildren(db *gorm.DB, path 
 	return fi.modelToEntity(&folderModel)
 }
 
+func (fi *folderInfoInfrastructure) FindOneByPathAndIsHideWithChildren(db *gorm.DB, path string, isHide bool) (*entity.FolderInfo, error) {
+	var folderModel model.FolderModel
+	if err := db.Preload("Folders", "is_hide", isHide).Preload("Files", "is_hide", isHide).First(&folderModel, "path = ? and is_hide = ?", path, isHide).Error; err != nil {
+		return nil, err
+	}
+	return fi.modelToEntity(&folderModel)
+}
+
 func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
 	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	folder, err := fi.modelToEntity(&folderModel)
+	if err != nil {
+		return nil, err
+	}
+	folders := folder.GetFolders()
+	if 0 < len(folders) {
+		for i, v := range folders {
+			f, err := fi.FindOneByIDWithLower(db, v.GetID())
+			if err != nil {
+				return nil, err
+			}
+			folders[i] = *f
+		}
+		folder.SetFolders(folders)
+	}
+	return folder, nil
+}
+
+func (fi *folderInfoInfrastructure) FindOneByIDAndIsHideWithLower(db *gorm.DB, id uint64, isHide bool) (*entity.FolderInfo, error) {
+	var folderModel model.FolderModel
+	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ? and is_hide = ?", id, isHide).Error; err != nil {
 		return nil, err
 	}
 	folder, err := fi.modelToEntity(&folderModel)
