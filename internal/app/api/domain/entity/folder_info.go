@@ -122,6 +122,10 @@ func (f *FolderInfo) SetUpdatedAt(updatedAt time.Time) {
 	f.updatedAt = updatedAt
 }
 
+func (f *FolderInfo) IsRoot() bool {
+	return f.parentFolderID == nil
+}
+
 func (f *FolderInfo) Move(oldPath string, newPath string) error {
 	if 0 < len(f.folders) {
 		for i := 0; i < len(f.folders); i++ {

@@ -80,6 +80,10 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 			return err
 		}
 
+		if folderInfo.IsRoot() {
+			return fmt.Errorf("root directory is not updatable")
+		}
+
 		folderInfo.SetIsHide(isHide)
 
 		if name != folderInfo.GetName() {
@@ -121,6 +125,10 @@ func (fu *folderUsecase) Remove(id uint64) error {
 			return err
 		}
 
+		if folderInfo.IsRoot() {
+			return fmt.Errorf("root directory is not removable")
+		}
+
 		return fu.folderInfoRepository.Remove(tx, folderInfo)
 	}); err != nil {
 		return err
@@ -135,6 +143,10 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		folderInfo, err := fu.folderInfoRepository.FindOneByIDWithLower(tx, id)
 		if err != nil {
 			return err
+		}
+
+		if folderInfo.IsRoot() {
+			return fmt.Errorf("root directory is not updatable")
 		}
 
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
