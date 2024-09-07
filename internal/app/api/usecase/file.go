@@ -5,6 +5,7 @@ import (
 	"file-server/internal/app/api/domain/repository"
 	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/usecase/dto"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -53,8 +54,10 @@ func (fu *fileUsecase) Create(folderID uint64, name string, isHide bool, body []
 			return err
 		}
 
-		if err := fu.fileInfoService.Exists(tx, fileInfo); err != nil {
+		if isExists, err := fu.fileInfoService.IsExists(tx, fileInfo); err != nil {
 			return err
+		} else if isExists {
+			return fmt.Errorf("%s is already exists", fileInfo.GetPath())
 		}
 
 		file, err = fu.fileInfoRepository.Create(tx, fileInfo)
@@ -144,8 +147,10 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64) (*dto.FileDTO, error) {
 		}
 		fileInfo.SetFolderID(folderID)
 
-		if err := fu.fileInfoService.Exists(tx, fileInfo); err != nil {
+		if isExists, err := fu.fileInfoService.IsExists(tx, fileInfo); err != nil {
 			return err
+		} else if isExists {
+			return fmt.Errorf("%s is already exists", fileInfo.GetPath())
 		}
 
 		if err := fu.fileBodyRepository.Update(oldPath, path); err != nil {

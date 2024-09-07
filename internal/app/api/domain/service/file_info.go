@@ -9,7 +9,7 @@ import (
 )
 
 type FileInfoService interface {
-	Exists(*gorm.DB, *entity.FileInfo) error
+	IsExists(*gorm.DB, *entity.FileInfo) (bool, error)
 }
 
 type fileInfoService struct {
@@ -22,14 +22,14 @@ func NewFileInfoService(fileInfoRepository repository.FileInfoRepository) FileIn
 	}
 }
 
-func (fs *fileInfoService) Exists(db *gorm.DB, file *entity.FileInfo) error {
+func (fs *fileInfoService) IsExists(db *gorm.DB, file *entity.FileInfo) (bool, error) {
 	path := file.GetPath()
 	if _, err := fs.fileInfoRepository.FindOneByPath(db, path); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
+			return false, nil
 		} else {
-			return err
+			return false, err
 		}
 	}
-	return nil
+	return true, nil
 }

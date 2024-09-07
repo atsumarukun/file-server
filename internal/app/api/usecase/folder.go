@@ -51,8 +51,10 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 			return err
 		}
 
-		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
+		if isExists, err := fu.folderInfoService.IsExists(tx, folderInfo); err != nil {
 			return err
+		} else if isExists {
+			return fmt.Errorf("%s is already exists", folderInfo.GetPath())
 		}
 
 		folder, err = fu.folderInfoRepository.Create(tx, folderInfo)
@@ -92,8 +94,10 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool) (*dto.Folde
 				return err
 			}
 
-			if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
+			if isExists, err := fu.folderInfoService.IsExists(tx, folderInfo); err != nil {
 				return err
+			} else if isExists {
+				return fmt.Errorf("%s is already exists", folderInfo.GetPath())
 			}
 
 			if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {
@@ -149,8 +153,10 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64) (*dto.FolderDTO,
 		}
 		folderInfo.SetParentFolderID(&parentFolderID)
 
-		if err := fu.folderInfoService.Exists(tx, folderInfo); err != nil {
+		if isExists, err := fu.folderInfoService.IsExists(tx, folderInfo); err != nil {
 			return err
+		} else if isExists {
+			return fmt.Errorf("%s is already exists", folderInfo.GetPath())
 		}
 
 		if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {

@@ -9,7 +9,7 @@ import (
 )
 
 type FolderInfoService interface {
-	Exists(*gorm.DB, *entity.FolderInfo) error
+	IsExists(*gorm.DB, *entity.FolderInfo) (bool, error)
 }
 
 type folderInfoService struct {
@@ -22,14 +22,14 @@ func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository) 
 	}
 }
 
-func (fs *folderInfoService) Exists(db *gorm.DB, folder *entity.FolderInfo) error {
+func (fs *folderInfoService) IsExists(db *gorm.DB, folder *entity.FolderInfo) (bool, error) {
 	path := folder.GetPath()
 	if _, err := fs.folderInfoRepository.FindOneByPath(db, path); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
+			return false, nil
 		} else {
-			return err
+			return false, err
 		}
 	}
-	return nil
+	return true, nil
 }
