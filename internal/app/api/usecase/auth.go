@@ -40,7 +40,7 @@ func (au authUsecase) Signin(password string) (*dto.AuthDTO, error) {
 	claims := jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 1).Unix(),
 	}
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.JWT_SECRET_KEY))
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS512, claims).SignedString([]byte(config.JWT_SECRET_KEY))
 	if err != nil {
 		return nil, err
 	}
