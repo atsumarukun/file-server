@@ -65,14 +65,7 @@ func (fh *folderHandler) Update(c *gin.Context) {
 		return
 	}
 
-	var isDisplayHiddenObject bool
-	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
-		isDisplayHiddenObject = false
-	} else {
-		isDisplayHiddenObject = true
-	}
-
-	dto, err := fh.usecase.Update(id, request.Name, request.IsHide, isDisplayHiddenObject)
+	dto, err := fh.usecase.Update(id, request.Name, request.IsHide, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -92,14 +85,7 @@ func (fh *folderHandler) Remove(c *gin.Context) {
 		return
 	}
 
-	var isDisplayHiddenObject bool
-	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
-		isDisplayHiddenObject = false
-	} else {
-		isDisplayHiddenObject = true
-	}
-
-	if err := fh.usecase.Remove(id, isDisplayHiddenObject); err != nil {
+	if err := fh.usecase.Remove(id, fh.getIsDisplayHiddenObject(c)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
 		} else {
@@ -124,14 +110,7 @@ func (fh *folderHandler) Move(c *gin.Context) {
 		return
 	}
 
-	var isDisplayHiddenObject bool
-	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
-		isDisplayHiddenObject = false
-	} else {
-		isDisplayHiddenObject = true
-	}
-
-	dto, err := fh.usecase.Move(id, request.ParentFolderID, isDisplayHiddenObject)
+	dto, err := fh.usecase.Move(id, request.ParentFolderID, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -157,14 +136,7 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	var isDisplayHiddenObject bool
-	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
-		isDisplayHiddenObject = false
-	} else {
-		isDisplayHiddenObject = true
-	}
-
-	dto, err := fh.usecase.Copy(id, request.ParentFolderID, isDisplayHiddenObject)
+	dto, err := fh.usecase.Copy(id, request.ParentFolderID, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -180,14 +152,7 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 func (fh *folderHandler) FindOne(c *gin.Context) {
 	path := c.Param("path")
 
-	var isDisplayHiddenObject bool
-	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
-		isDisplayHiddenObject = false
-	} else {
-		isDisplayHiddenObject = true
-	}
-
-	dto, err := fh.usecase.FindOne(path, isDisplayHiddenObject)
+	dto, err := fh.usecase.FindOne(path, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, err.Error())
@@ -198,6 +163,14 @@ func (fh *folderHandler) FindOne(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+}
+
+func (fh *folderHandler) getIsDisplayHiddenObject(c *gin.Context) bool {
+	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
+		return false
+	} else {
+		return true
+	}
 }
 
 func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *responses.FolderResponse {
