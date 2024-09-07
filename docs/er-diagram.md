@@ -26,6 +26,13 @@ files {
     timestamp(6) deleted_at
 }
 
+credentials {
+    bigint id PK
+    text password
+    timestamp(6) created_at
+    timestamp(6) updated_at
+}
+
 folders ||--o{ folders: ""
 folders ||--o{ files: ""
 ```
@@ -63,3 +70,14 @@ folders ||--o{ files: ""
 | timestamp(6) | created_at | | | 作成日 |
 | timestamp(6) | updated_at | | | 更新日 |
 | timestamp(6) | deleted_at | | TRUE | 削除日 |
+
+## credentials
+
+**認証情報テーブル**
+
+| タイプ | 名称 | キー | Null許容 | 説明 |
+| ---- | ---- | ---- | ---- | ---- |
+| bigint | id | PK | | ID |
+| text | password | UNIQUE | | パスワード |
+| timestamp(6) | created_at | | | 作成日 |
+| timestamp(6) | updated_at | | | 更新日 |
