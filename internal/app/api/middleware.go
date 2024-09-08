@@ -1,7 +1,9 @@
 package api
 
 import (
+	"bytes"
 	"errors"
+	"file-server/internal/app/api/interface/requests"
 	"file-server/internal/pkg/config"
 	"net/http"
 	"strings"
@@ -38,4 +40,56 @@ func authMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
+	gin.SetMode(gin.ReleaseMode)
+	return func(c *gin.Context) {
+		var requests []requests.BatchRequest
+		if err := c.ShouldBindJSON(&requests); err != nil {
+			c.JSON(http.StatusBadRequest, err.Error())
+			return
+		}
+
+		responses := make([]gin.H, len(requests))
+		for i, req := range requests {
+			request, err := http.NewRequest(req.Method, req.Path, bytes.NewBuffer([]byte(req.Body)))
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err.Error())
+				return
+			}
+			request.Header = c.Request.Header
+
+			w := &responseWriter{header: make(http.Header)}
+
+			engine.ServeHTTP(w, request)
+
+			responses[i] = gin.H{
+				"status":  w.status,
+				"headers": w.header,
+				"body":    string(w.body),
+			}
+		}
+
+		c.JSON(http.StatusOK, responses)
+	}
+}
+
+type responseWriter struct {
+	header http.Header
+	status int
+	body   []byte
+}
+
+func (w *responseWriter) Header() http.Header {
+	return w.header
+}
+
+func (w *responseWriter) Write(b []byte) (int, error) {
+	w.body = append(w.body, b...)
+	return len(b), nil
+}
+
+func (w *responseWriter) WriteHeader(statusCode int) {
+	w.status = statusCode
 }

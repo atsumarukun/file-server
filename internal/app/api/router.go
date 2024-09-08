@@ -3,6 +3,13 @@ package api
 import "github.com/gin-gonic/gin"
 
 func route(r *gin.Engine) {
+	r.Static("/static", "./storage")
+
+	auth := r.Group("/auth")
+	{
+		auth.POST("/signin", authHandler.Signin)
+	}
+
 	folders := r.Group("/folders")
 	{
 		folders.POST("/", folderHandler.Create)
@@ -28,10 +35,8 @@ func route(r *gin.Engine) {
 		files.POST("/:id/copy", fileHandler.Copy)
 	}
 
-	auth := r.Group("/auth")
+	batch := r.Group("/batch")
 	{
-		auth.POST("/signin", authHandler.Signin)
+		batch.POST("/", batchMiddleware(r))
 	}
-
-	r.Static("/static", "./storage")
 }
