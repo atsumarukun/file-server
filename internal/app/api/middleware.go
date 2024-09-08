@@ -43,7 +43,6 @@ func authMiddleware() gin.HandlerFunc {
 }
 
 func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
-	gin.SetMode(gin.ReleaseMode)
 	return func(c *gin.Context) {
 		var requests []requests.BatchRequest
 		if err := c.ShouldBindJSON(&requests); err != nil {
