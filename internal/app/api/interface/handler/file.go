@@ -35,28 +35,28 @@ func NewFileHandler(usecase usecase.FileUsecase) FileHandler {
 func (fh *fileHandler) Create(c *gin.Context) {
 	f, header, err := c.Request.FormFile("file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	defer f.Close()
 	body, err := io.ReadAll(f)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.CreateFileRequest
 	if err := c.Bind(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Create(request.FolderID, header.Filename, request.IsHide, body)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -67,22 +67,22 @@ func (fh *fileHandler) Create(c *gin.Context) {
 func (fh *fileHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.UpdateFileRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Update(id, request.Name, request.IsHide, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -93,15 +93,15 @@ func (fh *fileHandler) Update(c *gin.Context) {
 func (fh *fileHandler) Remove(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := fh.usecase.Remove(id, fh.getIsDisplayHiddenObject(c)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -112,22 +112,22 @@ func (fh *fileHandler) Remove(c *gin.Context) {
 func (fh *fileHandler) Move(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.MoveFileRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Move(id, request.FolderID, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -138,22 +138,22 @@ func (fh *fileHandler) Move(c *gin.Context) {
 func (fh *fileHandler) Copy(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.CopyFileRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Copy(id, request.FolderID, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}

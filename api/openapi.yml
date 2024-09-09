@@ -661,21 +661,21 @@ components:
     401:
       description: "RUnauthorized"
       content:
-        application/json:
+        text/plain:
           schema:
             type: string
             example: "unauthorized"
     404:
       description: "Resource Not Found"
       content:
-        application/json:
+        text/plain:
           schema:
             type: string
             example: "resource not found"
     500:
       description: "Internal Server Error"
       content:
-        application/json:
+        text/plain:
           schema:
             type: string
             example: "internal server error"

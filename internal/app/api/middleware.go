@@ -18,7 +18,7 @@ func authMiddleware() gin.HandlerFunc {
 		if c.Request.Header.Get("Authorization") != "" {
 			token := strings.Split(c.Request.Header.Get("Authorization"), " ")
 			if len(token) != 2 || token[0] != "Bearer" {
-				c.JSON(http.StatusUnauthorized, "invalid token")
+				c.String(http.StatusUnauthorized, "invalid token")
 				c.Abort()
 				return
 			}
@@ -32,7 +32,7 @@ func authMiddleware() gin.HandlerFunc {
 				if errors.Is(err, jwt.ErrTokenExpired) {
 					c.Set("isDisplayHiddenObject", false)
 				} else {
-					c.JSON(http.StatusUnauthorized, "invalid token")
+					c.String(http.StatusUnauthorized, "invalid token")
 					c.Abort()
 					return
 				}

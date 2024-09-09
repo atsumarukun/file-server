@@ -35,16 +35,16 @@ func NewFolderHandler(usecase usecase.FolderUsecase) FolderHandler {
 func (fh *folderHandler) Create(c *gin.Context) {
 	var request requests.CreateFolderRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Create(request.ParentFolderID, request.Name, request.IsHide)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -55,22 +55,22 @@ func (fh *folderHandler) Create(c *gin.Context) {
 func (fh *folderHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.UpdateFolderRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Update(id, request.Name, request.IsHide, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -81,15 +81,15 @@ func (fh *folderHandler) Update(c *gin.Context) {
 func (fh *folderHandler) Remove(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if err := fh.usecase.Remove(id, fh.getIsDisplayHiddenObject(c)); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -100,22 +100,22 @@ func (fh *folderHandler) Remove(c *gin.Context) {
 func (fh *folderHandler) Move(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.MoveFolderRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Move(id, request.ParentFolderID, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -126,22 +126,22 @@ func (fh *folderHandler) Move(c *gin.Context) {
 func (fh *folderHandler) Copy(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	var request requests.CopyFolderRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := fh.usecase.Copy(id, request.ParentFolderID, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -155,9 +155,9 @@ func (fh *folderHandler) FindOne(c *gin.Context) {
 	dto, err := fh.usecase.FindOne(path, fh.getIsDisplayHiddenObject(c))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}

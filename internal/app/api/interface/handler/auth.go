@@ -29,16 +29,16 @@ func NewAuthHandler(usecase usecase.AuthUsecase) AuthHandler {
 func (ah *authHandler) Signin(c *gin.Context) {
 	var request requests.SigninRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	dto, err := ah.usecase.Signin(request.Password)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err.Error())
+			c.String(http.StatusNotFound, err.Error())
 		} else {
-			c.JSON(http.StatusInternalServerError, err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
