@@ -43,6 +43,25 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
+type responseWriter struct {
+	header http.Header
+	status int
+	body   []byte
+}
+
+func (w *responseWriter) Header() http.Header {
+	return w.header
+}
+
+func (w *responseWriter) Write(b []byte) (int, error) {
+	w.body = append(w.body, b...)
+	return len(b), nil
+}
+
+func (w *responseWriter) WriteHeader(statusCode int) {
+	w.status = statusCode
+}
+
 func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requests []requests.BatchRequest
@@ -83,23 +102,4 @@ func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, responses)
 	}
-}
-
-type responseWriter struct {
-	header http.Header
-	status int
-	body   []byte
-}
-
-func (w *responseWriter) Header() http.Header {
-	return w.header
-}
-
-func (w *responseWriter) Write(b []byte) (int, error) {
-	w.body = append(w.body, b...)
-	return len(b), nil
-}
-
-func (w *responseWriter) WriteHeader(statusCode int) {
-	w.status = statusCode
 }
