@@ -48,6 +48,7 @@ func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
 		var requests []requests.BatchRequest
 		if err := c.ShouldBindJSON(&requests); err != nil {
 			c.JSON(http.StatusBadRequest, err.Error())
+			c.Abort()
 			return
 		}
 
@@ -62,6 +63,7 @@ func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
 				r, err := http.NewRequest(req.Method, req.Path, bytes.NewBuffer([]byte(req.Body)))
 				if err != nil {
 					c.JSON(http.StatusInternalServerError, err.Error())
+					c.Abort()
 					return
 				}
 				r.Header = c.Request.Header
