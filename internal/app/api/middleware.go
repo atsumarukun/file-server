@@ -7,6 +7,7 @@ import (
 	"file-server/internal/pkg/config"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -51,24 +52,32 @@ func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
 		}
 
 		responses := make([]gin.H, len(requests))
+
+		var wg sync.WaitGroup
 		for i, req := range requests {
-			request, err := http.NewRequest(req.Method, req.Path, bytes.NewBuffer([]byte(req.Body)))
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, err.Error())
-				return
-			}
-			request.Header = c.Request.Header
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
 
-			w := &responseWriter{header: make(http.Header)}
+				r, err := http.NewRequest(req.Method, req.Path, bytes.NewBuffer([]byte(req.Body)))
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, err.Error())
+					return
+				}
+				r.Header = c.Request.Header
 
-			engine.ServeHTTP(w, request)
+				w := &responseWriter{header: make(http.Header)}
 
-			responses[i] = gin.H{
-				"status":  w.status,
-				"headers": w.header,
-				"body":    string(w.body),
-			}
+				engine.ServeHTTP(w, r)
+
+				responses[i] = gin.H{
+					"status":  w.status,
+					"headers": w.header,
+					"body":    string(w.body),
+				}
+			}()
 		}
+		wg.Wait()
 
 		c.JSON(http.StatusOK, responses)
 	}
