@@ -129,6 +129,10 @@ func (fu *fileUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 			return err
 		}
 
+		if err := fu.fileBodyRepository.Remove(fileInfo.GetPath()); err != nil {
+			return err
+		}
+
 		return fu.fileInfoRepository.Remove(tx, fileInfo)
 	}); err != nil {
 		return err

@@ -1,10 +1,6 @@
 package model
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
+import "time"
 
 type FileModel struct {
 	ID        uint64
@@ -15,7 +11,6 @@ type FileModel struct {
 	IsHide    bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
 }
 
 func (fm *FileModel) TableName() string {

@@ -140,6 +140,10 @@ func (fu *folderUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 			return fmt.Errorf("root directory is not removable")
 		}
 
+		if err := fu.folderBodyRepository.Remove(folderInfo.GetPath()); err != nil {
+			return err
+		}
+
 		return fu.folderInfoRepository.Remove(tx, folderInfo)
 	}); err != nil {
 		return err

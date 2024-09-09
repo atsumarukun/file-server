@@ -48,6 +48,10 @@ func (fi *folderBodyInfrastructure) Update(oldPath string, newPath string) error
 	return os.Rename(config.STORAGE_PATH+oldPath, config.STORAGE_PATH+newPath)
 }
 
+func (fi *folderBodyInfrastructure) Remove(path string) error {
+	return os.RemoveAll(config.STORAGE_PATH + path)
+}
+
 func (fi *folderBodyInfrastructure) Read(path string) (*entity.FolderBody, error) {
 	entry, err := os.ReadDir(config.STORAGE_PATH + path)
 	if err != nil {

@@ -25,6 +25,10 @@ func (fi *fileBodyInfrastructure) Update(oldPath string, newPath string) error {
 	return os.Rename(config.STORAGE_PATH+oldPath, config.STORAGE_PATH+newPath)
 }
 
+func (fi *fileBodyInfrastructure) Remove(path string) error {
+	return os.Remove(config.STORAGE_PATH + path)
+}
+
 func (fi *fileBodyInfrastructure) Read(path string) (*entity.FileBody, error) {
 	body, err := os.ReadFile(config.STORAGE_PATH + path)
 	if err != nil {

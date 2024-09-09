@@ -1,10 +1,6 @@
 package model
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
+import "time"
 
 type FolderModel struct {
 	ID             uint64
@@ -16,7 +12,6 @@ type FolderModel struct {
 	Files          []FileModel   `gorm:"foreignkey:FolderID"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	DeletedAt      gorm.DeletedAt
 }
 
 func (fm *FolderModel) TableName() string {
