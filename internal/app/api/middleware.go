@@ -18,7 +18,7 @@ func authMiddleware() gin.HandlerFunc {
 		if c.Request.Header.Get("Authorization") != "" {
 			token := strings.Split(c.Request.Header.Get("Authorization"), " ")
 			if len(token) != 2 || token[0] != "Bearer" {
-				c.JSON(http.StatusUnauthorized, "middleware: invalid token")
+				c.JSON(http.StatusUnauthorized, "invalid token")
 				c.Abort()
 				return
 			}
@@ -32,7 +32,7 @@ func authMiddleware() gin.HandlerFunc {
 				if errors.Is(err, jwt.ErrTokenExpired) {
 					c.Set("isDisplayHiddenObject", false)
 				} else {
-					c.JSON(http.StatusUnauthorized, "middleware: invalid token")
+					c.JSON(http.StatusUnauthorized, "invalid token")
 					c.Abort()
 					return
 				}
@@ -75,6 +75,17 @@ func batchMiddleware(engine *gin.Engine) gin.HandlerFunc {
 
 		var wg sync.WaitGroup
 		for i, req := range requests {
+			if req.Path == "/files/" && req.Method == "POST" {
+				header := http.Header{}
+				header.Set("Content-Type", "text/plain; charset=utf-8")
+				responses[i] = gin.H{
+					"status":  http.StatusBadRequest,
+					"headers": header,
+					"body":    "invalid request",
+				}
+				continue
+			}
+
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
