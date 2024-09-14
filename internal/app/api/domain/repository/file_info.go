@@ -8,6 +8,7 @@ import (
 
 type FileInfoRepository interface {
 	Create(*gorm.DB, *entity.FileInfo) (*entity.FileInfo, error)
+	Creates(*gorm.DB, []entity.FileInfo) ([]entity.FileInfo, error)
 	Update(*gorm.DB, *entity.FileInfo) (*entity.FileInfo, error)
 	Remove(*gorm.DB, *entity.FileInfo) error
 	FindOneByID(*gorm.DB, uint64) (*entity.FileInfo, error)

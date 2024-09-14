@@ -173,8 +173,8 @@ paths:
         - BearerAuth: []
   /files:
     post:
-      summary: "ファイルを作成"
-      description: "pathで指定されたフォルダにファイルを作成."
+      summary: "複数ファイルを作成"
+      description: "pathで指定されたフォルダに複数ファイルを作成."
       tags:
         - "file"
       requestBody:
@@ -182,7 +182,7 @@ paths:
       responses:
         201:
           description: "成功"
-          $ref: "#/components/responses/file"
+          $ref: "#/components/responses/files"
         404:
           description: "存在しないリソース"
           $ref: "#/components/responses/404"
@@ -450,10 +450,12 @@ components:
           type: boolean
           description: "非表示フラグ"
           example: false
-        file:
-          type: string
-          format: binary
-          description: "ファイル"
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
+          description: "複数ファイル"
           writeOnly: true
         created_at:
           $ref: "#/components/schemas/created_at"
@@ -466,7 +468,7 @@ components:
         - path
         - mime_type
         - is_hide
-        - file
+        - files
         - created_at
         - updated_at
         - deleted_at
@@ -573,7 +575,7 @@ components:
                     readOnly: true
                   mime_type:
                     readOnly: true
-                  file:
+                  files:
                     readOnly: true
     copy_file:
       description: "ファイルコピー"
@@ -641,6 +643,14 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/file"
+    files:
+      description: "複数ファイル"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/file"
     static_file:
       description: "静的ファイルID"
       content:

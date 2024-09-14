@@ -6,6 +6,7 @@ import (
 	"file-server/internal/app/api/interface/responses"
 	"file-server/internal/app/api/usecase"
 	"file-server/internal/app/api/usecase/dto"
+	"file-server/internal/pkg/types"
 	"io"
 	"net/http"
 	"strconv"
@@ -33,16 +34,29 @@ func NewFileHandler(usecase usecase.FileUsecase) FileHandler {
 }
 
 func (fh *fileHandler) Create(c *gin.Context) {
-	f, header, err := c.Request.FormFile("file")
+	form, err := c.MultipartForm()
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	defer f.Close()
-	body, err := io.ReadAll(f)
-	if err != nil {
-		c.String(http.StatusBadRequest, err.Error())
-		return
+
+	files := make([]types.File, len(form.File["files[]"]))
+	for i, file := range form.File["files[]"] {
+		f, err := file.Open()
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		defer f.Close()
+		body, err := io.ReadAll(f)
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		files[i] = types.File{
+			Name: file.Filename,
+			Body: body,
+		}
 	}
 
 	var request requests.CreateFileRequest
@@ -51,7 +65,7 @@ func (fh *fileHandler) Create(c *gin.Context) {
 		return
 	}
 
-	dto, err := fh.usecase.Create(request.FolderID, header.Filename, request.IsHide, body)
+	dtos, err := fh.usecase.Create(request.FolderID, request.IsHide, files)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.String(http.StatusNotFound, err.Error())
@@ -61,7 +75,7 @@ func (fh *fileHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, fh.dtosToResponses(dtos))
 }
 
 func (fh *fileHandler) Update(c *gin.Context) {
@@ -180,4 +194,13 @@ func (fh *fileHandler) dtoToResponse(file *dto.FileDTO) *responses.FileResponse 
 		CreatedAt: file.CreatedAt,
 		UpdatedAt: file.UpdatedAt,
 	}
+}
+
+func (fh *fileHandler) dtosToResponses(files []dto.FileDTO) []responses.FileResponse {
+	fileResponses := make([]responses.FileResponse, len(files))
+	for i, file := range files {
+		f := fh.dtoToResponse(&file)
+		fileResponses[i] = *f
+	}
+	return fileResponses
 }

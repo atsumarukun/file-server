@@ -22,6 +22,14 @@ func (fi *fileInfoInfrastructure) Create(db *gorm.DB, file *entity.FileInfo) (*e
 	return fi.modelToEntity(fileModel)
 }
 
+func (fi *fileInfoInfrastructure) Creates(db *gorm.DB, files []entity.FileInfo) ([]entity.FileInfo, error) {
+	fileModels := fi.entitiesToModels(files)
+	if err := db.Create(fileModels).Error; err != nil {
+		return nil, err
+	}
+	return fi.modelsToEntities(fileModels)
+}
+
 func (fi *fileInfoInfrastructure) Update(db *gorm.DB, file *entity.FileInfo) (*entity.FileInfo, error) {
 	fileModel := fi.entityToModel(file)
 	if err := db.Save(fileModel).Error; err != nil {
@@ -72,6 +80,15 @@ func (fi *fileInfoInfrastructure) entityToModel(file *entity.FileInfo) *model.Fi
 	}
 }
 
+func (fi *fileInfoInfrastructure) entitiesToModels(files []entity.FileInfo) []model.FileModel {
+	models := make([]model.FileModel, len(files))
+	for i, file := range files {
+		model := fi.entityToModel(&file)
+		models[i] = *model
+	}
+	return models
+}
+
 func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.FileInfo, error) {
 	fileEntity := &entity.FileInfo{}
 	fileEntity.SetID(file.ID)
@@ -89,4 +106,16 @@ func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.
 	fileEntity.SetCreatedAt(file.CreatedAt)
 	fileEntity.SetUpdatedAt(file.UpdatedAt)
 	return fileEntity, nil
+}
+
+func (fi *fileInfoInfrastructure) modelsToEntities(files []model.FileModel) ([]entity.FileInfo, error) {
+	entities := make([]entity.FileInfo, len(files))
+	for i, file := range files {
+		entity, err := fi.modelToEntity(&file)
+		if err != nil {
+			return nil, err
+		}
+		entities[i] = *entity
+	}
+	return entities, nil
 }
