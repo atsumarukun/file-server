@@ -28,7 +28,7 @@ func (fi *folderInfoInfrastructure) Update(db *gorm.DB, folder *entity.FolderInf
 		return nil, err
 	}
 	if 0 < len(folderModel.Folders) {
-		for _, v := range folder.GetFolders() {
+		for _, v := range folder.Folders {
 			if _, err := fi.Update(db, &v); err != nil {
 				return nil, err
 			}
@@ -45,7 +45,7 @@ func (fi *folderInfoInfrastructure) Update(db *gorm.DB, folder *entity.FolderInf
 func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInfo) error {
 	folderModel := fi.entityToModel(folder)
 	if 0 < len(folderModel.Folders) {
-		for _, v := range folder.GetFolders() {
+		for _, v := range folder.Folders {
 			if err := fi.Remove(db, &v); err != nil {
 				return err
 			}
@@ -100,16 +100,16 @@ func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64)
 	if err != nil {
 		return nil, err
 	}
-	folders := folder.GetFolders()
+	folders := folder.Folders
 	if 0 < len(folders) {
 		for i, v := range folders {
-			f, err := fi.FindOneByIDWithLower(db, v.GetID())
+			f, err := fi.FindOneByIDWithLower(db, v.ID)
 			if err != nil {
 				return nil, err
 			}
 			folders[i] = *f
 		}
-		folder.SetFolders(folders)
+		folder.Folders = folders
 	}
 	return folder, nil
 }
@@ -123,54 +123,54 @@ func (fi *folderInfoInfrastructure) FindOneByIDAndIsHideWithLower(db *gorm.DB, i
 	if err != nil {
 		return nil, err
 	}
-	folders := folder.GetFolders()
+	folders := folder.Folders
 	if 0 < len(folders) {
 		for i, v := range folders {
-			f, err := fi.FindOneByIDWithLower(db, v.GetID())
+			f, err := fi.FindOneByIDWithLower(db, v.ID)
 			if err != nil {
 				return nil, err
 			}
 			folders[i] = *f
 		}
-		folder.SetFolders(folders)
+		folder.Folders = folders
 	}
 	return folder, nil
 }
 
 func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
 	var folders []model.FolderModel
-	if folder.GetFolders() != nil {
-		folders = make([]model.FolderModel, len(folder.GetFolders()))
-		for i, v := range folder.GetFolders() {
+	if folder.Folders != nil {
+		folders = make([]model.FolderModel, len(folder.Folders))
+		for i, v := range folder.Folders {
 			folders[i] = *fi.entityToModel(&v)
 		}
 	}
 	var files []model.FileModel
-	if folder.GetFiles() != nil {
-		files = make([]model.FileModel, len(folder.GetFiles()))
-		for i, v := range folder.GetFiles() {
+	if folder.Files != nil {
+		files = make([]model.FileModel, len(folder.Files))
+		for i, v := range folder.Files {
 			files[i] = model.FileModel{
-				ID:        v.GetID(),
-				FolderID:  v.GetFolderID(),
-				Name:      v.GetName(),
-				Path:      v.GetPath(),
-				MimeType:  v.GetMimeType(),
-				IsHide:    v.GetIsHide(),
-				CreatedAt: v.GetCreatedAt(),
-				UpdatedAt: v.GetUpdatedAt(),
+				ID:        v.ID,
+				FolderID:  v.FolderID,
+				Name:      v.Name.Value,
+				Path:      v.Path.Value,
+				MimeType:  v.MimeType.Value,
+				IsHide:    v.IsHide,
+				CreatedAt: v.CreatedAt,
+				UpdatedAt: v.UpdatedAt,
 			}
 		}
 	}
 	return &model.FolderModel{
-		ID:             folder.GetID(),
-		ParentFolderID: folder.GetParentFolderID(),
-		Name:           folder.GetName(),
-		Path:           folder.GetPath(),
-		IsHide:         folder.GetIsHide(),
+		ID:             folder.ID,
+		ParentFolderID: folder.ParentFolderID,
+		Name:           folder.Name.Value,
+		Path:           folder.Path.Value,
+		IsHide:         folder.IsHide,
 		Folders:        folders,
 		Files:          files,
-		CreatedAt:      folder.GetCreatedAt(),
-		UpdatedAt:      folder.GetUpdatedAt(),
+		CreatedAt:      folder.CreatedAt,
+		UpdatedAt:      folder.UpdatedAt,
 	}
 }
 
@@ -191,8 +191,8 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 		files = make([]entity.FileInfo, len(folder.Files))
 		for i, v := range folder.Files {
 			f := &entity.FileInfo{}
-			f.SetID(v.ID)
-			f.SetFolderID(v.FolderID)
+			f.ID = v.ID
+			f.FolderID = v.FolderID
 			if err := f.SetName(v.Name); err != nil {
 				return nil, err
 			}
@@ -202,25 +202,25 @@ func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*e
 			if err := f.SetMimeType(v.MimeType); err != nil {
 				return nil, err
 			}
-			f.SetIsHide(v.IsHide)
-			f.SetCreatedAt(v.CreatedAt)
-			f.SetUpdatedAt(v.UpdatedAt)
+			f.IsHide = v.IsHide
+			f.CreatedAt = v.CreatedAt
+			f.UpdatedAt = v.UpdatedAt
 			files[i] = *f
 		}
 	}
 	folderEntity := &entity.FolderInfo{}
-	folderEntity.SetID(folder.ID)
-	folderEntity.SetParentFolderID(folder.ParentFolderID)
+	folderEntity.ID = folder.ID
+	folderEntity.ParentFolderID = folder.ParentFolderID
 	if err := folderEntity.SetName(folder.Name); err != nil {
 		return nil, err
 	}
 	if err := folderEntity.SetPath(folder.Path); err != nil {
 		return nil, err
 	}
-	folderEntity.SetIsHide(folder.IsHide)
-	folderEntity.SetFolders(folders)
-	folderEntity.SetFiles(files)
-	folderEntity.SetCreatedAt(folder.CreatedAt)
-	folderEntity.SetUpdatedAt(folder.UpdatedAt)
+	folderEntity.IsHide = folder.IsHide
+	folderEntity.Folders = folders
+	folderEntity.Files = files
+	folderEntity.CreatedAt = folder.CreatedAt
+	folderEntity.UpdatedAt = folder.UpdatedAt
 	return folderEntity, nil
 }

@@ -18,7 +18,7 @@ func (fi *fileBodyInfrastructure) Create(file *entity.FileBody) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(config.STORAGE_PATH+file.GetPath(), file.GetBody(), info.Mode())
+	return os.WriteFile(config.STORAGE_PATH+file.Path, file.Body, info.Mode())
 }
 
 func (fi *fileBodyInfrastructure) Update(oldPath string, newPath string) error {

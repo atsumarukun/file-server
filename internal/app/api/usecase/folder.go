@@ -44,7 +44,7 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 			return err
 		}
 
-		path := parentFolder.GetPath() + name + "/"
+		path := parentFolder.Path.Value + name + "/"
 
 		folderInfo, err = entity.NewFolderInfo(&parentFolderID, name, path, isHide)
 		if err != nil {
@@ -54,7 +54,7 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 		if isExists, err := fu.folderInfoService.IsExists(tx, folderInfo); err != nil {
 			return err
 		} else if isExists {
-			return fmt.Errorf("%s is already exists", folderInfo.GetPath())
+			return fmt.Errorf("%s is already exists", folderInfo.Path.Value)
 		}
 
 		folderInfo, err = fu.folderInfoRepository.Create(tx, folderInfo)
@@ -89,11 +89,11 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool, isDisplayHi
 			return fmt.Errorf("root directory is not updatable")
 		}
 
-		folderInfo.SetIsHide(isHide)
+		folderInfo.IsHide = isHide
 
-		if name != folderInfo.GetName() {
-			oldPath := folderInfo.GetPath()
-			path := oldPath[:strings.LastIndex(oldPath, folderInfo.GetName())] + name + "/"
+		if name != folderInfo.Name.Value {
+			oldPath := folderInfo.Path.Value
+			path := oldPath[:strings.LastIndex(oldPath, folderInfo.Name.Value)] + name + "/"
 
 			if err := folderInfo.SetName(name); err != nil {
 				return err
@@ -106,7 +106,7 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool, isDisplayHi
 			if isExists, err := fu.folderInfoService.IsExists(tx, folderInfo); err != nil {
 				return err
 			} else if isExists {
-				return fmt.Errorf("%s is already exists", folderInfo.GetPath())
+				return fmt.Errorf("%s is already exists", folderInfo.Path.Value)
 			}
 
 			if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {
@@ -140,7 +140,7 @@ func (fu *folderUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 			return fmt.Errorf("root directory is not removable")
 		}
 
-		if err := fu.folderBodyRepository.Remove(folderInfo.GetPath()); err != nil {
+		if err := fu.folderBodyRepository.Remove(folderInfo.Path.Value); err != nil {
 			return err
 		}
 
@@ -174,21 +174,21 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64, isDisplayHiddenO
 			return err
 		}
 
-		oldPath := folderInfo.GetPath()
-		if strings.Contains(parentFolder.GetPath(), oldPath) {
+		oldPath := folderInfo.Path.Value
+		if strings.Contains(parentFolder.Path.Value, oldPath) {
 			return fmt.Errorf("cannot move to lower directory")
 		}
-		path := parentFolder.GetPath() + folderInfo.GetName() + "/"
+		path := parentFolder.Path.Value + folderInfo.Name.Value + "/"
 
 		if err := folderInfo.Move(oldPath, path); err != nil {
 			return err
 		}
-		folderInfo.SetParentFolderID(&parentFolderID)
+		folderInfo.ParentFolderID = &parentFolderID
 
 		if isExists, err := fu.folderInfoService.IsExists(tx, folderInfo); err != nil {
 			return err
 		} else if isExists {
-			return fmt.Errorf("%s is already exists", folderInfo.GetPath())
+			return fmt.Errorf("%s is already exists", folderInfo.Path.Value)
 		}
 
 		if err := fu.folderBodyRepository.Update(oldPath, path); err != nil {
@@ -218,7 +218,7 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenO
 			return err
 		}
 
-		sourceFolderBody, err := fu.folderBodyRepository.Read(sourceFolderInfo.GetPath())
+		sourceFolderBody, err := fu.folderBodyRepository.Read(sourceFolderInfo.Path.Value)
 		if err != nil {
 			return err
 		}
@@ -228,12 +228,12 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenO
 			return err
 		}
 
-		path := parentFolder.GetPath() + sourceFolderInfo.GetName() + "/"
+		path := parentFolder.Path.Value + sourceFolderInfo.Name.Value + "/"
 		targetFolderInfo, err := sourceFolderInfo.Copy(path)
 		if err != nil {
 			return err
 		}
-		targetFolderInfo.SetParentFolderID(&parentFolderID)
+		targetFolderInfo.ParentFolderID = &parentFolderID
 
 		targetFolderBody := sourceFolderBody.Copy(path)
 		if err := fu.folderBodyRepository.Create(targetFolderBody); err != nil {
@@ -266,37 +266,37 @@ func (fu *folderUsecase) FindOne(path string, isDisplayHiddenObject bool) (*dto.
 
 func (fu *folderUsecase) entityToDTO(folder *entity.FolderInfo) *dto.FolderDTO {
 	var folders []dto.FolderDTO
-	if folder.GetFolders() != nil {
-		folders = make([]dto.FolderDTO, len(folder.GetFolders()))
-		for i, v := range folder.GetFolders() {
+	if folder.Folders != nil {
+		folders = make([]dto.FolderDTO, len(folder.Folders))
+		for i, v := range folder.Folders {
 			folders[i] = *fu.entityToDTO(&v)
 		}
 	}
 	var files []dto.FileDTO
-	if folder.GetFiles() != nil {
-		files = make([]dto.FileDTO, len(folder.GetFiles()))
-		for i, v := range folder.GetFiles() {
+	if folder.Files != nil {
+		files = make([]dto.FileDTO, len(folder.Files))
+		for i, v := range folder.Files {
 			files[i] = dto.FileDTO{
-				ID:        v.GetID(),
-				FolderID:  v.GetFolderID(),
-				Name:      v.GetName(),
-				Path:      v.GetPath(),
-				MimeType:  v.GetMimeType(),
-				IsHide:    v.GetIsHide(),
-				CreatedAt: v.GetCreatedAt(),
-				UpdatedAt: v.GetUpdatedAt(),
+				ID:        v.ID,
+				FolderID:  v.FolderID,
+				Name:      v.Name.Value,
+				Path:      v.Path.Value,
+				MimeType:  v.MimeType.Value,
+				IsHide:    v.IsHide,
+				CreatedAt: v.CreatedAt,
+				UpdatedAt: v.UpdatedAt,
 			}
 		}
 	}
 	return &dto.FolderDTO{
-		ID:             folder.GetID(),
-		ParentFolderID: folder.GetParentFolderID(),
-		Name:           folder.GetName(),
-		Path:           folder.GetPath(),
-		IsHide:         folder.GetIsHide(),
+		ID:             folder.ID,
+		ParentFolderID: folder.ParentFolderID,
+		Name:           folder.Name.Value,
+		Path:           folder.Path.Value,
+		IsHide:         folder.IsHide,
 		Folders:        folders,
 		Files:          files,
-		CreatedAt:      folder.GetCreatedAt(),
-		UpdatedAt:      folder.GetUpdatedAt(),
+		CreatedAt:      folder.CreatedAt,
+		UpdatedAt:      folder.UpdatedAt,
 	}
 }

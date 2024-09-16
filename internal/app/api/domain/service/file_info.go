@@ -23,8 +23,7 @@ func NewFileInfoService(fileInfoRepository repository.FileInfoRepository) FileIn
 }
 
 func (fs *fileInfoService) IsExists(db *gorm.DB, file *entity.FileInfo) (bool, error) {
-	path := file.GetPath()
-	if _, err := fs.fileInfoRepository.FindOneByPath(db, path); err != nil {
+	if _, err := fs.fileInfoRepository.FindOneByPath(db, file.Path.Value); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
 		} else {

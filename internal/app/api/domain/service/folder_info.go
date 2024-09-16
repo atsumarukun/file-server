@@ -23,8 +23,7 @@ func NewFolderInfoService(folderInfoRepository repository.FolderInfoRepository) 
 }
 
 func (fs *folderInfoService) IsExists(db *gorm.DB, folder *entity.FolderInfo) (bool, error) {
-	path := folder.GetPath()
-	if _, err := fs.folderInfoRepository.FindOneByPath(db, path); err != nil {
+	if _, err := fs.folderInfoRepository.FindOneByPath(db, folder.Path.Value); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
 		} else {

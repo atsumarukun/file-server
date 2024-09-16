@@ -19,11 +19,11 @@ func (fi *folderBodyInfrastructure) Create(folder *entity.FolderBody) error {
 		return err
 	}
 
-	if err := os.MkdirAll(config.STORAGE_PATH+folder.GetPath(), info.Mode()); err != nil {
+	if err := os.MkdirAll(config.STORAGE_PATH+folder.Path, info.Mode()); err != nil {
 		return err
 	}
 
-	folders := folder.GetFolders()
+	folders := folder.Folders
 	if 0 < len(folders) {
 		for _, v := range folders {
 			if err := fi.Create(&v); err != nil {
@@ -32,10 +32,10 @@ func (fi *folderBodyInfrastructure) Create(folder *entity.FolderBody) error {
 		}
 	}
 
-	files := folder.GetFiles()
+	files := folder.Files
 	if 0 < len(files) {
 		for _, v := range files {
-			if err := os.WriteFile(config.STORAGE_PATH+v.GetPath(), v.GetBody(), info.Mode()); err != nil {
+			if err := os.WriteFile(config.STORAGE_PATH+v.Path, v.Body, info.Mode()); err != nil {
 				return err
 			}
 		}
@@ -80,8 +80,8 @@ func (fi *folderBodyInfrastructure) Read(path string) (*entity.FolderBody, error
 		}
 	}
 
-	folder.SetFolders(folders)
-	folder.SetFiles(files)
+	folder.Folders = folders
+	folder.Files = files
 
 	return folder, nil
 }

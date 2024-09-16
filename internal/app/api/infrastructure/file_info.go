@@ -69,14 +69,14 @@ func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*enti
 
 func (fi *fileInfoInfrastructure) entityToModel(file *entity.FileInfo) *model.FileModel {
 	return &model.FileModel{
-		ID:        file.GetID(),
-		FolderID:  file.GetFolderID(),
-		Name:      file.GetName(),
-		Path:      file.GetPath(),
-		MimeType:  file.GetMimeType(),
-		IsHide:    file.GetIsHide(),
-		CreatedAt: file.GetCreatedAt(),
-		UpdatedAt: file.GetUpdatedAt(),
+		ID:        file.ID,
+		FolderID:  file.FolderID,
+		Name:      file.Name.Value,
+		Path:      file.Path.Value,
+		MimeType:  file.MimeType.Value,
+		IsHide:    file.IsHide,
+		CreatedAt: file.CreatedAt,
+		UpdatedAt: file.UpdatedAt,
 	}
 }
 
@@ -91,8 +91,8 @@ func (fi *fileInfoInfrastructure) entitiesToModels(files []entity.FileInfo) []mo
 
 func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.FileInfo, error) {
 	fileEntity := &entity.FileInfo{}
-	fileEntity.SetID(file.ID)
-	fileEntity.SetFolderID(file.FolderID)
+	fileEntity.ID = file.ID
+	fileEntity.FolderID = file.FolderID
 	if err := fileEntity.SetName(file.Name); err != nil {
 		return nil, err
 	}
@@ -102,9 +102,9 @@ func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.
 	if err := fileEntity.SetMimeType(file.MimeType); err != nil {
 		return nil, err
 	}
-	fileEntity.SetIsHide(file.IsHide)
-	fileEntity.SetCreatedAt(file.CreatedAt)
-	fileEntity.SetUpdatedAt(file.UpdatedAt)
+	fileEntity.IsHide = file.IsHide
+	fileEntity.CreatedAt = file.CreatedAt
+	fileEntity.UpdatedAt = file.UpdatedAt
 	return fileEntity, nil
 }
 

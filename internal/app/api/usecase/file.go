@@ -48,7 +48,7 @@ func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) 
 		}
 
 		for i, file := range files {
-			path := parentFolder.GetPath() + file.Name
+			path := parentFolder.Path.Value + file.Name
 			mimeType := http.DetectContentType(file.Body)
 
 			fileInfo, err := entity.NewFileInfo(folderID, file.Name, path, mimeType, isHide)
@@ -60,7 +60,7 @@ func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) 
 			if isExists, err := fu.fileInfoService.IsExists(tx, fileInfo); err != nil {
 				return err
 			} else if isExists {
-				return fmt.Errorf("%s is already exists", fileInfo.GetPath())
+				return fmt.Errorf("%s is already exists", fileInfo.Path.Value)
 			}
 
 			fileBody := entity.NewFileBody(path, file.Body)
@@ -91,11 +91,11 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHidd
 			return err
 		}
 
-		fileInfo.SetIsHide(isHide)
+		fileInfo.IsHide = isHide
 
-		if name != fileInfo.GetName() {
-			oldPath := fileInfo.GetPath()
-			path := oldPath[:strings.LastIndex(oldPath, fileInfo.GetName())] + name
+		if name != fileInfo.Name.Value {
+			oldPath := fileInfo.Path.Value
+			path := oldPath[:strings.LastIndex(oldPath, fileInfo.Name.Value)] + name
 
 			if err := fileInfo.SetName(name); err != nil {
 				return err
@@ -132,7 +132,7 @@ func (fu *fileUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 			return err
 		}
 
-		if err := fu.fileBodyRepository.Remove(fileInfo.GetPath()); err != nil {
+		if err := fu.fileBodyRepository.Remove(fileInfo.Path.Value); err != nil {
 			return err
 		}
 
@@ -162,18 +162,18 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64, isDisplayHiddenObject bo
 			return err
 		}
 
-		oldPath := fileInfo.GetPath()
-		path := parentFolder.GetPath() + fileInfo.GetName()
+		oldPath := fileInfo.Path.Value
+		path := parentFolder.Path.Value + fileInfo.Name.Value
 
 		if err := fileInfo.Move(oldPath, path); err != nil {
 			return err
 		}
-		fileInfo.SetFolderID(folderID)
+		fileInfo.FolderID = folderID
 
 		if isExists, err := fu.fileInfoService.IsExists(tx, fileInfo); err != nil {
 			return err
 		} else if isExists {
-			return fmt.Errorf("%s is already exists", fileInfo.GetPath())
+			return fmt.Errorf("%s is already exists", fileInfo.Path.Value)
 		}
 
 		if err := fu.fileBodyRepository.Update(oldPath, path); err != nil {
@@ -203,7 +203,7 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 			return err
 		}
 
-		sourceFileBody, err := fu.fileBodyRepository.Read(sourceFileInfo.GetPath())
+		sourceFileBody, err := fu.fileBodyRepository.Read(sourceFileInfo.Path.Value)
 		if err != nil {
 			return err
 		}
@@ -213,12 +213,12 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 			return err
 		}
 
-		path := parentFolder.GetPath() + sourceFileInfo.GetName()
+		path := parentFolder.Path.Value + sourceFileInfo.Name.Value
 		targetFileInfo, err := sourceFileInfo.Copy(path)
 		if err != nil {
 			return err
 		}
-		targetFileInfo.SetFolderID(folderID)
+		targetFileInfo.FolderID = folderID
 
 		targetFileBody := sourceFileBody.Copy(path)
 		if err := fu.fileBodyRepository.Create(targetFileBody); err != nil {
@@ -236,14 +236,14 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 
 func (fu *fileUsecase) entityToDTO(file *entity.FileInfo) *dto.FileDTO {
 	return &dto.FileDTO{
-		ID:        file.GetID(),
-		FolderID:  file.GetFolderID(),
-		Name:      file.GetName(),
-		Path:      file.GetPath(),
-		MimeType:  file.GetMimeType(),
-		IsHide:    file.GetIsHide(),
-		CreatedAt: file.GetCreatedAt(),
-		UpdatedAt: file.GetUpdatedAt(),
+		ID:        file.ID,
+		FolderID:  file.FolderID,
+		Name:      file.Name.Value,
+		Path:      file.Path.Value,
+		MimeType:  file.MimeType.Value,
+		IsHide:    file.IsHide,
+		CreatedAt: file.CreatedAt,
+		UpdatedAt: file.UpdatedAt,
 	}
 }
 
