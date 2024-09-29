@@ -107,3 +107,43 @@ func TestCreates(t *testing.T) {
 		}
 	}
 }
+
+func TestUpdate(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	file, err := entity.NewFileInfo(1, "name", "/path/", "mime/type", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	file.ID = 1
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta("UPDATE `files` SET `folder_id`=?,`name`=?,`path`=?,`mime_type`=?,`is_hide`=?,`created_at`=?,`updated_at`=? WHERE `id` = ?")).WithArgs(file.FolderID, file.Name.Value, file.Path.Value, file.MimeType.Value, file.IsHide, database.AnyTime{}, database.AnyTime{}, file.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	fi := NewFileInfoInfrastructure()
+
+	result, err := fi.Update(db, file)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(entity.FileInfo{}, "UpdatedAt"),
+	}
+
+	if diff := cmp.Diff(file, result, opts...); diff != "" {
+		t.Error(diff)
+	}
+
+	if result.UpdatedAt == database.NullTime {
+		t.Error("failed to insert updated_at automatically")
+	}
+}
