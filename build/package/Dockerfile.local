@@ -10,6 +10,6 @@ RUN apt-get update && \
 
 USER $USERNAME
 
-RUN go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest && \
-    go install github.com/golang/mock/mockgen@latest && \
-    go install github.com/air-verse/air@latest
+RUN go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.18.1 && \
+    go install github.com/golang/mock/mockgen@v1.6.0 && \
+    go install github.com/air-verse/air@v1.52.3
