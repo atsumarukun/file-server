@@ -147,3 +147,31 @@ func TestUpdate(t *testing.T) {
 		t.Error("failed to insert updated_at automatically")
 	}
 }
+
+func TestRemove(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	file, err := entity.NewFileInfo(1, "name", "/path/", "mime/type", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	file.ID = 1
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `files` WHERE `files`.`id` = ?")).WithArgs(file.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	fi := NewFileInfoInfrastructure()
+
+	err = fi.Remove(db, file)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+}
