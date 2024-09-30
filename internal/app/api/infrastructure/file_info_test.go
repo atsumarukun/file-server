@@ -12,7 +12,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestCreate(t *testing.T) {
+func TestCreateFile(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())
