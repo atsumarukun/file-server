@@ -5,6 +5,7 @@ import (
 	"file-server/test/database"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
@@ -173,5 +174,29 @@ func TestRemove(t *testing.T) {
 
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Error(err.Error())
+	}
+}
+
+func TestFindOneByID(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `files` WHERE id = ? ORDER BY `files`.`id` LIMIT ?")).WithArgs(1, 1).WillReturnRows(sqlmock.NewRows([]string{"id", "folder_id", "name", "path", "mime_type", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", "mime/type", false, time.Now(), time.Now()))
+
+	fi := NewFileInfoInfrastructure()
+
+	result, err := fi.FindOneByID(db, 1)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to find the file by id")
 	}
 }
