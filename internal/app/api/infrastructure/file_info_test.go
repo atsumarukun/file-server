@@ -221,6 +221,30 @@ func TestFindOneByIDAndIsHide(t *testing.T) {
 	}
 
 	if result == nil {
-		t.Error("failed to find the file by id")
+		t.Error("failed to find the file by id and is_hide")
+	}
+}
+
+func TestFindOneByPath(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `files` WHERE path = ? ORDER BY `files`.`id` LIMIT ?")).WithArgs("/path/", 1).WillReturnRows(sqlmock.NewRows([]string{"id", "folder_id", "name", "path", "mime_type", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", "mime/type", false, time.Now(), time.Now()))
+
+	fi := NewFileInfoInfrastructure()
+
+	result, err := fi.FindOneByPath(db, "/path/")
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to find the file by path")
 	}
 }
