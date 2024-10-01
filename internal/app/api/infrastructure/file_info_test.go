@@ -59,7 +59,7 @@ func TestCreateFile(t *testing.T) {
 	}
 }
 
-func TestCreates(t *testing.T) {
+func TestCreateFiles(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())
@@ -109,7 +109,7 @@ func TestCreates(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func TestUpdateFile(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())
