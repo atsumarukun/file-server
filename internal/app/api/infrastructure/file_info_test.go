@@ -177,7 +177,7 @@ func TestRemoveFile(t *testing.T) {
 	}
 }
 
-func TestFindOneByID(t *testing.T) {
+func TestFindOneFileByID(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())
@@ -201,7 +201,7 @@ func TestFindOneByID(t *testing.T) {
 	}
 }
 
-func TestFindOneByIDAndIsHide(t *testing.T) {
+func TestFindOneFileByIDAndIsHide(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())
@@ -225,7 +225,7 @@ func TestFindOneByIDAndIsHide(t *testing.T) {
 	}
 }
 
-func TestFindOneByPath(t *testing.T) {
+func TestFindOneFileByPath(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())
