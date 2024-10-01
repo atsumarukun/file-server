@@ -149,7 +149,7 @@ func TestUpdateFile(t *testing.T) {
 	}
 }
 
-func TestRemove(t *testing.T) {
+func TestRemoveFile(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())

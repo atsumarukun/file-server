@@ -97,3 +97,31 @@ func TestUpdateFolder(t *testing.T) {
 		t.Error("failed to insert updated_at automatically")
 	}
 }
+
+func TestRemoveFolder(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	folder, err := entity.NewFolderInfo(nil, "name", "/path/", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	folder.ID = 1
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta("DELETE FROM `folders` WHERE `folders`.`id` = ?")).WithArgs(folder.ID).WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	fi := NewFolderInfoInfrastructure()
+
+	err = fi.Remove(db, folder)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+}
