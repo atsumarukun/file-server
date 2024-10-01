@@ -116,7 +116,7 @@ func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64)
 
 func (fi *folderInfoInfrastructure) FindOneByIDAndIsHideWithLower(db *gorm.DB, id uint64, isHide bool) (*entity.FolderInfo, error) {
 	var folderModel model.FolderModel
-	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ? and is_hide = ?", id, isHide).Error; err != nil {
+	if err := db.Preload("Folders", "is_hide", isHide).Preload("Files", "is_hide", isHide).First(&folderModel, "id = ? and is_hide = ?", id, isHide).Error; err != nil {
 		return nil, err
 	}
 	folder, err := fi.modelToEntity(&folderModel)
@@ -126,7 +126,7 @@ func (fi *folderInfoInfrastructure) FindOneByIDAndIsHideWithLower(db *gorm.DB, i
 	folders := folder.Folders
 	if 0 < len(folders) {
 		for i, v := range folders {
-			f, err := fi.FindOneByIDWithLower(db, v.ID)
+			f, err := fi.FindOneByIDAndIsHideWithLower(db, v.ID, isHide)
 			if err != nil {
 				return nil, err
 			}

@@ -255,3 +255,32 @@ func TestFindOneFolderByIDWithLower(t *testing.T) {
 		t.Error("failed to find the file by id with lower")
 	}
 }
+
+func TestFindOneFolderByIDAndIsHideWithLower(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `folders` WHERE id = ? and is_hide = ? ORDER BY `folders`.`id` LIMIT ?")).WithArgs(1, true, 1).WillReturnRows(sqlmock.NewRows([]string{"id", "parent_folder_id", "name", "path", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", true, time.Now(), time.Now()))
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `files` WHERE `files`.`folder_id` = ? AND `is_hide` = ?")).WithArgs(1, true).WillReturnRows(sqlmock.NewRows([]string{"id", "folder_id", "name", "path", "mime_type", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", "mime/type", true, time.Now(), time.Now()))
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `folders` WHERE `folders`.`parent_folder_id` = ? AND `is_hide` = ?")).WithArgs(1, true).WillReturnRows(sqlmock.NewRows([]string{"id", "parent_folder_id", "name", "path", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", true, time.Now(), time.Now()))
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `folders` WHERE id = ? and is_hide = ? ORDER BY `folders`.`id` LIMIT ?")).WithArgs(1, true, 1).WillReturnRows(sqlmock.NewRows([]string{"id", "parent_folder_id", "name", "path", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", true, time.Now(), time.Now()))
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `files` WHERE `files`.`folder_id` = ? AND `is_hide` = ?")).WithArgs(1, true).WillReturnRows(sqlmock.NewRows(nil))
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `folders` WHERE `folders`.`parent_folder_id` = ? AND `is_hide` = ?")).WithArgs(1, true).WillReturnRows(sqlmock.NewRows(nil))
+
+	fi := NewFolderInfoInfrastructure()
+
+	result, err := fi.FindOneByIDAndIsHideWithLower(db, 1, true)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to find the file by id with lower")
+	}
+}
