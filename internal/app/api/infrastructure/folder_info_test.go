@@ -150,3 +150,27 @@ func TestFindOneFolderByID(t *testing.T) {
 		t.Error("failed to find the file by id")
 	}
 }
+
+func TestFindOneFolderByPath(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `folders` WHERE path = ? ORDER BY `folders`.`id` LIMIT ?")).WithArgs("/path/", 1).WillReturnRows(sqlmock.NewRows([]string{"id", "parent_folder_id", "name", "path", "is_hide", "created_at", "updated_at"}).AddRow(1, 1, "name", "/path/", false, time.Now(), time.Now()))
+
+	fi := NewFolderInfoInfrastructure()
+
+	result, err := fi.FindOneByPath(db, "/path/")
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to find the file by id")
+	}
+}
