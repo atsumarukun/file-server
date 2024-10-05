@@ -226,6 +226,12 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 		}
 		targetFileInfo.FolderID = folderID
 
+		if isExists, err := fu.fileInfoService.IsExists(tx, targetFileInfo); err != nil {
+			return err
+		} else if isExists {
+			return fmt.Errorf("%s is already exists", targetFileInfo.Path.Value)
+		}
+
 		targetFileBody := sourceFileBody.Copy(path)
 		if err := fu.fileBodyRepository.Create(targetFileBody); err != nil {
 			return err
