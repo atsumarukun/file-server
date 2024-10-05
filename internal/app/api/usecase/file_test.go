@@ -19,14 +19,14 @@ func TestCreateFile(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectCommit()
 
-	fileInfo, err := entity.NewFileInfo(1, "name", "/path/", "mime/type", false)
+	fileInfo, err := entity.NewFileInfo(1, "name", "/path/name", "mime/type", false)
 	if err != nil {
 		t.Error(err.Error())
 	}
 
 	fileBody := entity.NewFileBody("name", []byte("file"))
 
-	folderInfo, err := entity.NewFolderInfo(nil, "name", "/path/", false)
+	folderInfo, err := entity.NewFolderInfo(nil, "name", "/path/name", false)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -55,5 +55,46 @@ func TestCreateFile(t *testing.T) {
 
 	if result == nil {
 		t.Error("failed to create file")
+	}
+}
+
+func TestUpdateFile(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+
+	fileInfo, err := entity.NewFileInfo(1, "name", "/path/name", "mime/type", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fileInfo.ID = 1
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	fileInfoRepository := mock_repository.NewMockFileInfoRepository(ctrl)
+	fileInfoRepository.EXPECT().FindOneByIDAndIsHide(gomock.Any(), fileInfo.ID, fileInfo.IsHide).Return(fileInfo, nil)
+	fileInfoRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(fileInfo, nil)
+
+	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
+	fileBodyRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+
+	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+
+	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
+	fileInfoService.EXPECT().IsExists(gomock.Any(), gomock.Any()).Return(false, nil)
+
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+
+	result, err := fu.Update(fileInfo.ID, "update", true, false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to update file")
 	}
 }

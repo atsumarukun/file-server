@@ -105,6 +105,12 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHidd
 				return err
 			}
 
+			if isExists, err := fu.fileInfoService.IsExists(tx, fileInfo); err != nil {
+				return err
+			} else if isExists {
+				return fmt.Errorf("%s is already exists", fileInfo.Path.Value)
+			}
+
 			if err := fu.fileBodyRepository.Update(oldPath, path); err != nil {
 				return err
 			}
