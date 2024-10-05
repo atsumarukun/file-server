@@ -223,3 +223,37 @@ func TestCopyFolder(t *testing.T) {
 		t.Error("failed to copy folder")
 	}
 }
+
+func TestFindOneFolder(t *testing.T) {
+	db, _, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	folderInfo, err := entity.NewFolderInfo(nil, "name", "/path/name/", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	folderInfo.ID = 1
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+	folderInfoRepository.EXPECT().FindOneByPathAndIsHideWithChildren(gomock.Any(), gomock.Any(), gomock.Any()).Return(folderInfo, nil)
+
+	folderBodyRepository := mock_repository.NewMockFolderBodyRepository(ctrl)
+
+	folderInfoService := mock_service.NewMockFolderInfoService(ctrl)
+
+	fu := NewFolderUsecase(db, folderInfoRepository, folderBodyRepository, folderInfoService)
+
+	result, err := fu.FindOne(folderInfo.Path.Value, false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to find one folder")
+	}
+}
