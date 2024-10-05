@@ -40,13 +40,13 @@ func TestCreateFile(t *testing.T) {
 	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
 	fileBodyRepository.EXPECT().Create(gomock.Any()).Return(nil)
 
-	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
-	folderInforepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+	folderInfoRepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
 
 	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
 	fileInfoService.EXPECT().IsExists(gomock.Any(), gomock.Any()).Return(false, nil)
 
-	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
 
 	result, err := fu.Create(fileInfo.FolderID, fileInfo.IsHide, []types.File{{Name: fileInfo.Name.Value, Body: fileBody.Body}})
 	if err != nil {
@@ -82,12 +82,12 @@ func TestUpdateFile(t *testing.T) {
 	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
 	fileBodyRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 
-	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
 
 	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
 	fileInfoService.EXPECT().IsExists(gomock.Any(), gomock.Any()).Return(false, nil)
 
-	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
 
 	result, err := fu.Update(fileInfo.ID, "update", true, false)
 	if err != nil {
@@ -123,11 +123,11 @@ func TestRemoveFile(t *testing.T) {
 	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
 	fileBodyRepository.EXPECT().Remove(gomock.Any()).Return(nil)
 
-	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
 
 	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
 
-	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
 
 	err = fu.Remove(fileInfo.ID, false)
 	if err != nil {
@@ -165,13 +165,13 @@ func TestMoveFile(t *testing.T) {
 	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
 	fileBodyRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 
-	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
-	folderInforepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+	folderInfoRepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
 
 	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
 	fileInfoService.EXPECT().IsExists(gomock.Any(), gomock.Any()).Return(false, nil)
 
-	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
 
 	result, err := fu.Move(fileInfo.ID, 2, false)
 	if err != nil {
@@ -216,13 +216,13 @@ func TestCopyFile(t *testing.T) {
 	fileBodyRepository.EXPECT().Read(gomock.Any()).Return(fileBody, nil)
 	fileBodyRepository.EXPECT().Create(gomock.Any()).Return(nil)
 
-	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
-	folderInforepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+	folderInfoRepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
 
 	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
 	fileInfoService.EXPECT().IsExists(gomock.Any(), gomock.Any()).Return(false, nil)
 
-	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
 
 	result, err := fu.Copy(fileInfo.ID, 2, false)
 	if err != nil {
