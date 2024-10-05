@@ -235,6 +235,12 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenO
 		}
 		targetFolderInfo.ParentFolderID = &parentFolderID
 
+		if isExists, err := fu.folderInfoService.IsExists(tx, targetFolderInfo); err != nil {
+			return err
+		} else if isExists {
+			return fmt.Errorf("%s is already exists", targetFolderInfo.Path.Value)
+		}
+
 		targetFolderBody := sourceFolderBody.Copy(path)
 		if err := fu.folderBodyRepository.Create(targetFolderBody); err != nil {
 			return err
