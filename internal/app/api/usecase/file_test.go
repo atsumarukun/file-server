@@ -4,8 +4,8 @@ import (
 	"file-server/internal/app/api/domain/entity"
 	"file-server/internal/pkg/types"
 	"file-server/test/database"
-	mock_repository "file-server/test/mock/repository"
-	mock_service "file-server/test/mock/service"
+	mock_repository "file-server/test/mock/domain/repository"
+	mock_service "file-server/test/mock/domain/service"
 	"testing"
 
 	"github.com/golang/mock/gomock"

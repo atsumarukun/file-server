@@ -3,7 +3,7 @@ package usecase
 import (
 	"file-server/internal/app/api/domain/entity"
 	"file-server/test/database"
-	mock_repository "file-server/test/mock/repository"
+	mock_repository "file-server/test/mock/domain/repository"
 	"testing"
 
 	"github.com/golang/mock/gomock"
