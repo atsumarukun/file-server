@@ -26,7 +26,7 @@ func TestCreateFile(t *testing.T) {
 
 	fileBody := entity.NewFileBody("name", []byte("file"))
 
-	folderInfo, err := entity.NewFolderInfo(nil, "name", "/path/name", false)
+	folderInfo, err := entity.NewFolderInfo(nil, "name", "/path/name/", false)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -41,7 +41,7 @@ func TestCreateFile(t *testing.T) {
 	fileBodyRepository.EXPECT().Create(gomock.Any()).Return(nil)
 
 	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
-	folderInforepository.EXPECT().FindOneByID(gomock.Any(), fileInfo.FolderID).Return(folderInfo, nil)
+	folderInforepository.EXPECT().FindOneByID(gomock.Any(), gomock.Any()).Return(folderInfo, nil)
 
 	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
 	fileInfoService.EXPECT().IsExists(gomock.Any(), gomock.Any()).Return(false, nil)
@@ -76,7 +76,7 @@ func TestUpdateFile(t *testing.T) {
 	defer ctrl.Finish()
 
 	fileInfoRepository := mock_repository.NewMockFileInfoRepository(ctrl)
-	fileInfoRepository.EXPECT().FindOneByIDAndIsHide(gomock.Any(), fileInfo.ID, fileInfo.IsHide).Return(fileInfo, nil)
+	fileInfoRepository.EXPECT().FindOneByIDAndIsHide(gomock.Any(), gomock.Any(), gomock.Any()).Return(fileInfo, nil)
 	fileInfoRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(fileInfo, nil)
 
 	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
@@ -96,5 +96,41 @@ func TestUpdateFile(t *testing.T) {
 
 	if result == nil {
 		t.Error("failed to update file")
+	}
+}
+
+func TestRemoveFile(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+
+	fileInfo, err := entity.NewFileInfo(1, "name", "/path/name", "mime/type", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fileInfo.ID = 1
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	fileInfoRepository := mock_repository.NewMockFileInfoRepository(ctrl)
+	fileInfoRepository.EXPECT().FindOneByIDAndIsHide(gomock.Any(), fileInfo.ID, fileInfo.IsHide).Return(fileInfo, nil)
+	fileInfoRepository.EXPECT().Remove(gomock.Any(), gomock.Any()).Return(nil)
+
+	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
+	fileBodyRepository.EXPECT().Remove(gomock.Any()).Return(nil)
+
+	folderInforepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+
+	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
+
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInforepository, fileInfoService)
+
+	err = fu.Remove(fileInfo.ID, false)
+	if err != nil {
+		t.Error(err.Error())
 	}
 }
