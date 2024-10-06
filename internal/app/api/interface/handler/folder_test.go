@@ -186,3 +186,50 @@ func TestMoveFolder(t *testing.T) {
 		t.Error(w.Body.String())
 	}
 }
+
+func TestCopyFolder(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	input := requests.CopyFolderRequest{
+		ParentFolderID: 1,
+	}
+
+	body, err := json.Marshal(input)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	req, err := http.NewRequest("PUT", "/folders/1/copy", bytes.NewBuffer(body))
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = req
+	ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: strconv.Itoa(1)})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	dto := &dto.FolderDTO{
+		ID:             1,
+		ParentFolderID: nil,
+		Name:           "name",
+		Path:           "/path/name/",
+		IsHide:         false,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+
+	fu := mock_usecase.NewMockFolderUsecase(ctrl)
+	fu.EXPECT().Copy(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
+
+	fh := NewFolderHandler(fu)
+
+	fh.Copy(ctx)
+
+	if w.Code != http.StatusOK {
+		t.Error(w.Body.String())
+	}
+}
