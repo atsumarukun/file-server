@@ -233,3 +233,41 @@ func TestCopyFolder(t *testing.T) {
 		t.Error(w.Body.String())
 	}
 }
+
+func TestFindOneFolder(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	req, err := http.NewRequest("GET", "/folders/path/name/", nil)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = req
+	ctx.Params = append(ctx.Params, gin.Param{Key: "path", Value: "/path/name/"})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	dto := &dto.FolderDTO{
+		ID:             1,
+		ParentFolderID: nil,
+		Name:           "name",
+		Path:           "/path/name/",
+		IsHide:         false,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+
+	fu := mock_usecase.NewMockFolderUsecase(ctrl)
+	fu.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(dto, nil)
+
+	fh := NewFolderHandler(fu)
+
+	fh.FindOne(ctx)
+
+	if w.Code != http.StatusOK {
+		t.Error(w.Body.String())
+	}
+}
