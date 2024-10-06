@@ -48,6 +48,6 @@ func TestSignin(t *testing.T) {
 	ah.Signin(ctx)
 
 	if w.Code != http.StatusOK {
-		t.Error("failed to signin")
+		t.Error(w.Body.String())
 	}
 }
