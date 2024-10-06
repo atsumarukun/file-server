@@ -111,3 +111,31 @@ func TestUpdateFolder(t *testing.T) {
 		t.Error(w.Body.String())
 	}
 }
+
+func TestRemoveFolder(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	req, err := http.NewRequest("DELETE", "/folders/1", nil)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = req
+	ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: strconv.Itoa(1)})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	fu := mock_usecase.NewMockFolderUsecase(ctrl)
+	fu.EXPECT().Remove(gomock.Any(), gomock.Any()).Return(nil)
+
+	fh := NewFolderHandler(fu)
+
+	fh.Remove(ctx)
+
+	if w.Code != http.StatusOK {
+		t.Error(w.Body.String())
+	}
+}
