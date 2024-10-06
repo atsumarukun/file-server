@@ -15,15 +15,7 @@ import (
 )
 
 func TestSignin(t *testing.T) {
-	gin.SetMode(gin.ReleaseMode)
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	dto := dto.NewAuthDTO("token")
-
-	au := mock_usecase.NewMockAuthUsecase(ctrl)
-	au.EXPECT().Signin(gomock.Any()).Return(dto, nil)
+	gin.SetMode(gin.TestMode)
 
 	input := requests.SigninRequest{
 		Password: "password",
@@ -42,6 +34,14 @@ func TestSignin(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 	ctx.Request = req
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	dto := dto.NewAuthDTO("token")
+
+	au := mock_usecase.NewMockAuthUsecase(ctrl)
+	au.EXPECT().Signin(gomock.Any()).Return(dto, nil)
 
 	ah := NewAuthHandler(au)
 
