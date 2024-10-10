@@ -5,7 +5,6 @@ import (
 	"file-server/internal/app/api/interface/requests"
 	"file-server/internal/app/api/interface/responses"
 	"file-server/internal/app/api/usecase"
-	"file-server/internal/app/api/usecase/dto"
 	"file-server/internal/pkg/types"
 	"io"
 	"net/http"
@@ -21,6 +20,7 @@ type FileHandler interface {
 	Remove(*gin.Context)
 	Move(*gin.Context)
 	Copy(*gin.Context)
+	Read(*gin.Context)
 }
 
 type fileHandler struct {
@@ -75,7 +75,13 @@ func (fh *fileHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtosToResponses(dtos))
+	res := make([]responses.FileResponse, len(dtos))
+	for i, v := range dtos {
+		f := responses.NewFileResponse(v.ID, v.FolderID, v.Name, v.Path, v.MimeType, v.IsHide, v.CreatedAt, v.UpdatedAt)
+		res[i] = *f
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (fh *fileHandler) Update(c *gin.Context) {
@@ -101,7 +107,7 @@ func (fh *fileHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, responses.NewFileResponse(dto.ID, dto.FolderID, dto.Name, dto.Path, dto.MimeType, dto.IsHide, dto.CreatedAt, dto.UpdatedAt))
 }
 
 func (fh *fileHandler) Remove(c *gin.Context) {
@@ -146,7 +152,7 @@ func (fh *fileHandler) Move(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, responses.NewFileResponse(dto.ID, dto.FolderID, dto.Name, dto.Path, dto.MimeType, dto.IsHide, dto.CreatedAt, dto.UpdatedAt))
 }
 
 func (fh *fileHandler) Copy(c *gin.Context) {
@@ -172,35 +178,33 @@ func (fh *fileHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, responses.NewFileResponse(dto.ID, dto.FolderID, dto.Name, dto.Path, dto.MimeType, dto.IsHide, dto.CreatedAt, dto.UpdatedAt))
+}
+
+func (fh *fileHandler) Read(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	dto, err := fh.usecase.Read(id, fh.getIsDisplayHiddenObject(c))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.String(http.StatusNotFound, err.Error())
+		} else {
+			c.String(http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	c.Data(http.StatusOK, dto.MimeType, dto.Body)
 }
 
 func (fh *fileHandler) getIsDisplayHiddenObject(c *gin.Context) bool {
-	if v, ok := c.Get("isDisplayHiddenObject"); !ok || v == false {
-		return false
-	} else {
+	if v, ok := c.Get("isDisplayHiddenObject"); ok && v == true {
 		return true
+	} else {
+		return false
 	}
-}
-
-func (fh *fileHandler) dtoToResponse(file *dto.FileDTO) *responses.FileResponse {
-	return &responses.FileResponse{
-		ID:        file.ID,
-		FolderID:  file.FolderID,
-		Name:      file.Name,
-		Path:      file.Path,
-		MimeType:  file.MimeType,
-		IsHide:    file.IsHide,
-		CreatedAt: file.CreatedAt,
-		UpdatedAt: file.UpdatedAt,
-	}
-}
-
-func (fh *fileHandler) dtosToResponses(files []dto.FileDTO) []responses.FileResponse {
-	fileResponses := make([]responses.FileResponse, len(files))
-	for i, file := range files {
-		f := fh.dtoToResponse(&file)
-		fileResponses[i] = *f
-	}
-	return fileResponses
 }

@@ -278,11 +278,11 @@ func (fu *folderUsecase) entityToDTO(folder *entity.FolderInfo) *dto.FolderDTO {
 			folders[i] = *fu.entityToDTO(&v)
 		}
 	}
-	var files []dto.FileDTO
+	var files []dto.FileInfoDTO
 	if folder.Files != nil {
-		files = make([]dto.FileDTO, len(folder.Files))
+		files = make([]dto.FileInfoDTO, len(folder.Files))
 		for i, v := range folder.Files {
-			files[i] = dto.FileDTO{
+			files[i] = dto.FileInfoDTO{
 				ID:        v.ID,
 				FolderID:  v.FolderID,
 				Name:      v.Name.Value,

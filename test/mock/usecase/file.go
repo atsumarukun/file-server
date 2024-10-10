@@ -36,10 +36,10 @@ func (m *MockFileUsecase) EXPECT() *MockFileUsecaseMockRecorder {
 }
 
 // Copy mocks base method.
-func (m *MockFileUsecase) Copy(arg0, arg1 uint64, arg2 bool) (*dto.FileDTO, error) {
+func (m *MockFileUsecase) Copy(arg0, arg1 uint64, arg2 bool) (*dto.FileInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Copy", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*dto.FileDTO)
+	ret0, _ := ret[0].(*dto.FileInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -51,10 +51,10 @@ func (mr *MockFileUsecaseMockRecorder) Copy(arg0, arg1, arg2 interface{}) *gomoc
 }
 
 // Create mocks base method.
-func (m *MockFileUsecase) Create(arg0 uint64, arg1 bool, arg2 []types.File) ([]dto.FileDTO, error) {
+func (m *MockFileUsecase) Create(arg0 uint64, arg1 bool, arg2 []types.File) ([]dto.FileInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
-	ret0, _ := ret[0].([]dto.FileDTO)
+	ret0, _ := ret[0].([]dto.FileInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,10 +66,10 @@ func (mr *MockFileUsecaseMockRecorder) Create(arg0, arg1, arg2 interface{}) *gom
 }
 
 // Move mocks base method.
-func (m *MockFileUsecase) Move(arg0, arg1 uint64, arg2 bool) (*dto.FileDTO, error) {
+func (m *MockFileUsecase) Move(arg0, arg1 uint64, arg2 bool) (*dto.FileInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Move", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*dto.FileDTO)
+	ret0, _ := ret[0].(*dto.FileInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -78,6 +78,21 @@ func (m *MockFileUsecase) Move(arg0, arg1 uint64, arg2 bool) (*dto.FileDTO, erro
 func (mr *MockFileUsecaseMockRecorder) Move(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockFileUsecase)(nil).Move), arg0, arg1, arg2)
+}
+
+// Read mocks base method.
+func (m *MockFileUsecase) Read(arg0 uint64, arg1 bool) (*dto.FileBodyDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Read", arg0, arg1)
+	ret0, _ := ret[0].(*dto.FileBodyDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Read indicates an expected call of Read.
+func (mr *MockFileUsecaseMockRecorder) Read(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockFileUsecase)(nil).Read), arg0, arg1)
 }
 
 // Remove mocks base method.
@@ -95,10 +110,10 @@ func (mr *MockFileUsecaseMockRecorder) Remove(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // Update mocks base method.
-func (m *MockFileUsecase) Update(arg0 uint64, arg1 string, arg2, arg3 bool) (*dto.FileDTO, error) {
+func (m *MockFileUsecase) Update(arg0 uint64, arg1 string, arg2, arg3 bool) (*dto.FileInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*dto.FileDTO)
+	ret0, _ := ret[0].(*dto.FileInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

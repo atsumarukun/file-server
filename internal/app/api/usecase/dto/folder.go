@@ -9,7 +9,7 @@ type FolderDTO struct {
 	Path           string
 	IsHide         bool
 	Folders        []FolderDTO
-	Files          []FileDTO
+	Files          []FileInfoDTO
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 }

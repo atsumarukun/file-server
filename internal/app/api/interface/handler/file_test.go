@@ -58,7 +58,7 @@ func TestCreateFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := []dto.FileDTO{{
+	dto := []dto.FileInfoDTO{{
 		ID:        1,
 		FolderID:  1,
 		Name:      "name",
@@ -107,7 +107,7 @@ func TestUpdateFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileDTO{
+	dto := &dto.FileInfoDTO{
 		ID:        1,
 		FolderID:  1,
 		Name:      "name",
@@ -183,7 +183,7 @@ func TestMoveFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileDTO{
+	dto := &dto.FileInfoDTO{
 		ID:        1,
 		FolderID:  1,
 		Name:      "name",
@@ -231,7 +231,7 @@ func TestCopyFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileDTO{
+	dto := &dto.FileInfoDTO{
 		ID:        1,
 		FolderID:  1,
 		Name:      "name",

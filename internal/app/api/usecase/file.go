@@ -14,11 +14,12 @@ import (
 )
 
 type FileUsecase interface {
-	Create(uint64, bool, []types.File) ([]dto.FileDTO, error)
-	Update(uint64, string, bool, bool) (*dto.FileDTO, error)
+	Create(uint64, bool, []types.File) ([]dto.FileInfoDTO, error)
+	Update(uint64, string, bool, bool) (*dto.FileInfoDTO, error)
 	Remove(uint64, bool) error
-	Move(uint64, uint64, bool) (*dto.FileDTO, error)
-	Copy(uint64, uint64, bool) (*dto.FileDTO, error)
+	Move(uint64, uint64, bool) (*dto.FileInfoDTO, error)
+	Copy(uint64, uint64, bool) (*dto.FileInfoDTO, error)
+	Read(uint64, bool) (*dto.FileBodyDTO, error)
 }
 
 type fileUsecase struct {
@@ -39,7 +40,7 @@ func NewFileUsecase(db *gorm.DB, fileInfoRepository repository.FileInfoRepositor
 	}
 }
 
-func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) ([]dto.FileDTO, error) {
+func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) ([]dto.FileInfoDTO, error) {
 	fileInfos := make([]entity.FileInfo, len(files))
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, folderID)
@@ -75,10 +76,15 @@ func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) 
 		return nil, err
 	}
 
-	return fu.entitiesToDTOs(fileInfos), nil
+	dtos := make([]dto.FileInfoDTO, len(fileInfos))
+	for i, file := range fileInfos {
+		f := dto.NewFileInfoDTO(file.ID, file.FolderID, file.Name.Value, file.Path.Value, file.MimeType.Value, file.IsHide, file.CreatedAt, file.UpdatedAt)
+		dtos[i] = *f
+	}
+	return dtos, nil
 }
 
-func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHiddenObject bool) (*dto.FileDTO, error) {
+func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHiddenObject bool) (*dto.FileInfoDTO, error) {
 	var fileInfo *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		var err error
@@ -122,7 +128,7 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHidd
 		return nil, err
 	}
 
-	return fu.entityToDTO(fileInfo), nil
+	return dto.NewFileInfoDTO(fileInfo.ID, fileInfo.FolderID, fileInfo.Name.Value, fileInfo.Path.Value, fileInfo.MimeType.Value, fileInfo.IsHide, fileInfo.CreatedAt, fileInfo.UpdatedAt), nil
 }
 
 func (fu *fileUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
@@ -150,7 +156,7 @@ func (fu *fileUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 	return nil
 }
 
-func (fu *fileUsecase) Move(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileDTO, error) {
+func (fu *fileUsecase) Move(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileInfoDTO, error) {
 	var fileInfo *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		var err error
@@ -192,10 +198,10 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64, isDisplayHiddenObject bo
 		return nil, err
 	}
 
-	return fu.entityToDTO(fileInfo), nil
+	return dto.NewFileInfoDTO(fileInfo.ID, fileInfo.FolderID, fileInfo.Name.Value, fileInfo.Path.Value, fileInfo.MimeType.Value, fileInfo.IsHide, fileInfo.CreatedAt, fileInfo.UpdatedAt), nil
 }
 
-func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileDTO, error) {
+func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileInfoDTO, error) {
 	var fileInfo *entity.FileInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		var sourceFileInfo *entity.FileInfo
@@ -243,27 +249,28 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 		return nil, err
 	}
 
-	return fu.entityToDTO(fileInfo), nil
+	return dto.NewFileInfoDTO(fileInfo.ID, fileInfo.FolderID, fileInfo.Name.Value, fileInfo.Path.Value, fileInfo.MimeType.Value, fileInfo.IsHide, fileInfo.CreatedAt, fileInfo.UpdatedAt), nil
 }
 
-func (fu *fileUsecase) entityToDTO(file *entity.FileInfo) *dto.FileDTO {
-	return &dto.FileDTO{
-		ID:        file.ID,
-		FolderID:  file.FolderID,
-		Name:      file.Name.Value,
-		Path:      file.Path.Value,
-		MimeType:  file.MimeType.Value,
-		IsHide:    file.IsHide,
-		CreatedAt: file.CreatedAt,
-		UpdatedAt: file.UpdatedAt,
-	}
-}
+func (fu *fileUsecase) Read(id uint64, isDisplayHiddenObject bool) (*dto.FileBodyDTO, error) {
+	var fileInfo *entity.FileInfo
+	var fileBody *entity.FileBody
+	if err := fu.db.Transaction(func(tx *gorm.DB) error {
+		var err error
+		if isDisplayHiddenObject {
+			fileInfo, err = fu.fileInfoRepository.FindOneByID(tx, id)
+		} else {
+			fileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(tx, id, false)
+		}
+		if err != nil {
+			return err
+		}
 
-func (fu *fileUsecase) entitiesToDTOs(files []entity.FileInfo) []dto.FileDTO {
-	dtos := make([]dto.FileDTO, len(files))
-	for i, file := range files {
-		f := fu.entityToDTO(&file)
-		dtos[i] = *f
+		fileBody, err = fu.fileBodyRepository.Read(fileInfo.Path.Value)
+		return err
+	}); err != nil {
+		return nil, err
 	}
-	return dtos
+
+	return dto.NewFileBodyDTO(fileInfo.MimeType.Value, fileBody.Body), nil
 }

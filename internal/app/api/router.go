@@ -29,6 +29,7 @@ func route(r *gin.Engine) {
 
 		files.PUT("/:id", fileHandler.Update)
 		files.DELETE("/:id", fileHandler.Remove)
+		files.GET("/:id/body", fileHandler.Read)
 		files.PUT("/:id/move", fileHandler.Move)
 		files.POST("/:id/copy", fileHandler.Copy)
 	}
