@@ -337,30 +337,6 @@ paths:
           $ref: "#/components/responses/500"
       security:
         - BearerAuth: []
-  /static/{*path}:
-    get:
-      summary: "静的ファイルを取得"
-      description: "静的ファイルを取得."
-      tags:
-        - "static"
-      parameters:
-        - in: path
-          name: "path"
-          required: true
-          schema:
-            $ref: "#/components/schemas/file/properties/path"
-      responses:
-        200:
-          description: "成功"
-          $ref: "#/components/responses/file_body"
-        404:
-          description: "存在しないリソース"
-          $ref: "#/components/responses/404"
-        500:
-          description: "サーバーエラー"
-          $ref: "#/components/responses/500"
-      security:
-        - BearerAuth: []
   /batch:
     post:
       summary: "バッチリクエスト"

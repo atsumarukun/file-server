@@ -3,8 +3,6 @@ package api
 import "github.com/gin-gonic/gin"
 
 func route(r *gin.Engine) {
-	r.Static("/static", "./storage")
-
 	auth := r.Group("/auth")
 	{
 		auth.POST("/signin", authHandler.Signin)
