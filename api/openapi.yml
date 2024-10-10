@@ -95,6 +95,30 @@ paths:
           $ref: "#/components/responses/500"
       security:
         - BearerAuth: []
+  /folders/{id}/body:
+    get:
+      summary: "フォルダデータを取得"
+      description: "フォルダデータを取得.<br />bearer tokenが有効であれば非表示フォルダデータの取得が可能."
+      tags:
+        - "folder"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/id"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/file_body"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
   /folders/{id}/copy:
     post:
       summary: "フォルダをコピー"
@@ -147,9 +171,9 @@ paths:
           $ref: "#/components/responses/500"
       security:
         - BearerAuth: []
-  /folders/{*path}:
+  /folders/find/{*path}:
     get:
-      summary: "フォルダとを取得"
+      summary: "フォルダを取得"
       description: "pathで指定されたフォルダと、フォルダに含まれるフォルダとファイルの一覧を取得.<br />bearer tokenが有効であれば非表示リソースも取得."
       tags:
         - "folder"
@@ -237,6 +261,30 @@ paths:
           $ref: "#/components/responses/500"
       security:
         - BearerAuth: []
+  /files/{id}/body:
+    get:
+      summary: "ファイルデータを取得"
+      description: "ファイルデータを取得.<br />bearer tokenが有効であれば非表示ファイルデータの取得が可能."
+      tags:
+        - "file"
+      parameters:
+        - in: path
+          name: "id"
+          required: true
+          schema:
+            $ref: "#/components/schemas/folder/properties/id"
+      responses:
+        200:
+          description: "成功"
+          $ref: "#/components/responses/file_body"
+        404:
+          description: "存在しないリソース"
+          $ref: "#/components/responses/404"
+        500:
+          description: "サーバーエラー"
+          $ref: "#/components/responses/500"
+      security:
+        - BearerAuth: []
   /files/{id}/copy:
     post:
       summary: "ファイルをコピー"
@@ -304,7 +352,7 @@ paths:
       responses:
         200:
           description: "成功"
-          $ref: "#/components/responses/static_file"
+          $ref: "#/components/responses/file_body"
         404:
           description: "存在しないリソース"
           $ref: "#/components/responses/404"
@@ -651,8 +699,8 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/file"
-    static_file:
-      description: "静的ファイルID"
+    file_body:
+      description: "ファイルデータ"
       content:
         application/octet-stream:
           schema:
