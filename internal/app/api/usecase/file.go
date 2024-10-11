@@ -254,21 +254,18 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 
 func (fu *fileUsecase) Read(id uint64, isDisplayHiddenObject bool) (*dto.FileBodyDTO, error) {
 	var fileInfo *entity.FileInfo
-	var fileBody *entity.FileBody
-	if err := fu.db.Transaction(func(tx *gorm.DB) error {
-		var err error
-		if isDisplayHiddenObject {
-			fileInfo, err = fu.fileInfoRepository.FindOneByID(tx, id)
-		} else {
-			fileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(tx, id, false)
-		}
-		if err != nil {
-			return err
-		}
+	var err error
+	if isDisplayHiddenObject {
+		fileInfo, err = fu.fileInfoRepository.FindOneByID(fu.db, id)
+	} else {
+		fileInfo, err = fu.fileInfoRepository.FindOneByIDAndIsHide(fu.db, id, false)
+	}
+	if err != nil {
+		return nil, err
+	}
 
-		fileBody, err = fu.fileBodyRepository.Read(fileInfo.Path.Value)
-		return err
-	}); err != nil {
+	fileBody, err := fu.fileBodyRepository.Read(fileInfo.Path.Value)
+	if err != nil {
 		return nil, err
 	}
 
