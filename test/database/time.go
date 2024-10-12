@@ -11,5 +11,3 @@ func (a AnyTime) Match(v driver.Value) bool {
 	_, ok := v.(time.Time)
 	return ok
 }
-
-var NullTime = time.Time{}

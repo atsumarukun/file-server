@@ -50,11 +50,11 @@ func TestCreateFolder(t *testing.T) {
 		t.Error("failed to insert id automatically")
 	}
 
-	if result.CreatedAt == database.NullTime {
+	if result.CreatedAt.IsZero() {
 		t.Error("failed to insert created_at automatically")
 	}
 
-	if result.UpdatedAt == database.NullTime {
+	if result.UpdatedAt.IsZero() {
 		t.Error("failed to insert updated_at automatically")
 	}
 }
@@ -94,7 +94,7 @@ func TestUpdateFolder(t *testing.T) {
 		t.Error(diff)
 	}
 
-	if result.UpdatedAt == database.NullTime {
+	if result.UpdatedAt.IsZero() {
 		t.Error("failed to insert updated_at automatically")
 	}
 }
