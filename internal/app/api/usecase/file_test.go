@@ -233,3 +233,44 @@ func TestCopyFile(t *testing.T) {
 		t.Error("failed to copy file")
 	}
 }
+
+func CreateReadFile(t *testing.T) {
+	db, mock, err := database.Open()
+	if err != nil {
+		t.Error(err.Error())
+	}
+	mock.ExpectBegin()
+	mock.ExpectCommit()
+
+	fileInfo, err := entity.NewFileInfo(1, "name", "/path/name", "mime/type", false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fileInfo.ID = 1
+
+	fileBody := entity.NewFileBody("name", []byte("file"))
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	fileInfoRepository := mock_repository.NewMockFileInfoRepository(ctrl)
+	fileInfoRepository.EXPECT().FindOneByIDAndIsHide(gomock.Any(), gomock.Any(), gomock.Any()).Return(fileInfo, nil)
+
+	fileBodyRepository := mock_repository.NewMockFileBodyRepository(ctrl)
+	fileBodyRepository.EXPECT().Read(gomock.Any()).Return(fileBody, nil)
+
+	folderInfoRepository := mock_repository.NewMockFolderInfoRepository(ctrl)
+
+	fileInfoService := mock_service.NewMockFileInfoService(ctrl)
+
+	fu := NewFileUsecase(db, fileInfoRepository, fileBodyRepository, folderInfoRepository, fileInfoService)
+
+	result, err := fu.Read(fileInfo.ID, false)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if result == nil {
+		t.Error("failed to read file")
+	}
+}
