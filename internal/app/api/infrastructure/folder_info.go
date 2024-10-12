@@ -44,18 +44,6 @@ func (fi *folderInfoInfrastructure) Update(db *gorm.DB, folder *entity.FolderInf
 
 func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInfo) error {
 	folderModel := fi.entityToModel(folder)
-	if 0 < len(folderModel.Folders) {
-		for _, v := range folder.Folders {
-			if err := fi.Remove(db, &v); err != nil {
-				return err
-			}
-		}
-	}
-	if 0 < len(folderModel.Files) {
-		if err := db.Delete(folderModel.Files).Error; err != nil {
-			return err
-		}
-	}
 	return db.Delete(folderModel).Error
 }
 

@@ -128,7 +128,7 @@ func (fu *fileUsecase) Update(id uint64, name string, isHide bool, isDisplayHidd
 		return nil, err
 	}
 
-	return dto.NewFileInfoDTO(fileInfo.ID, fileInfo.FolderID, fileInfo.Name.Value, fileInfo.Path.Value, fileInfo.MimeType.Value, fileInfo.IsHide, fileInfo.CreatedAt, fileInfo.UpdatedAt), nil
+	return fu.convertToFileInfoDTO(fileInfo), nil
 }
 
 func (fu *fileUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
@@ -198,7 +198,7 @@ func (fu *fileUsecase) Move(id uint64, folderID uint64, isDisplayHiddenObject bo
 		return nil, err
 	}
 
-	return dto.NewFileInfoDTO(fileInfo.ID, fileInfo.FolderID, fileInfo.Name.Value, fileInfo.Path.Value, fileInfo.MimeType.Value, fileInfo.IsHide, fileInfo.CreatedAt, fileInfo.UpdatedAt), nil
+	return fu.convertToFileInfoDTO(fileInfo), nil
 }
 
 func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bool) (*dto.FileInfoDTO, error) {
@@ -249,7 +249,7 @@ func (fu *fileUsecase) Copy(id uint64, folderID uint64, isDisplayHiddenObject bo
 		return nil, err
 	}
 
-	return dto.NewFileInfoDTO(fileInfo.ID, fileInfo.FolderID, fileInfo.Name.Value, fileInfo.Path.Value, fileInfo.MimeType.Value, fileInfo.IsHide, fileInfo.CreatedAt, fileInfo.UpdatedAt), nil
+	return fu.convertToFileInfoDTO(fileInfo), nil
 }
 
 func (fu *fileUsecase) Read(id uint64, isDisplayHiddenObject bool) (*dto.FileBodyDTO, error) {
@@ -270,4 +270,8 @@ func (fu *fileUsecase) Read(id uint64, isDisplayHiddenObject bool) (*dto.FileBod
 	}
 
 	return dto.NewFileBodyDTO(fileInfo.MimeType.Value, fileBody.Body), nil
+}
+
+func (fu *fileUsecase) convertToFileInfoDTO(file *entity.FileInfo) *dto.FileInfoDTO {
+	return dto.NewFileInfoDTO(file.ID, file.FolderID, file.Name.Value, file.Path.Value, file.MimeType.Value, file.IsHide, file.CreatedAt, file.UpdatedAt)
 }

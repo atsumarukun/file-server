@@ -42,7 +42,7 @@ func TestCreateFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderDTO{
+	dto := &dto.FolderInfoDTO{
 		ID:             1,
 		ParentFolderID: nil,
 		Name:           "name",
@@ -90,7 +90,7 @@ func TestUpdateFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderDTO{
+	dto := &dto.FolderInfoDTO{
 		ID:             1,
 		ParentFolderID: nil,
 		Name:           "name",
@@ -165,7 +165,7 @@ func TestMoveFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderDTO{
+	dto := &dto.FolderInfoDTO{
 		ID:             1,
 		ParentFolderID: nil,
 		Name:           "name",
@@ -212,7 +212,7 @@ func TestCopyFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderDTO{
+	dto := &dto.FolderInfoDTO{
 		ID:             1,
 		ParentFolderID: nil,
 		Name:           "name",
@@ -250,7 +250,7 @@ func TestFindOneFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderDTO{
+	dto := &dto.FolderInfoDTO{
 		ID:             1,
 		ParentFolderID: nil,
 		Name:           "name",

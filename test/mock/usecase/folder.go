@@ -35,10 +35,10 @@ func (m *MockFolderUsecase) EXPECT() *MockFolderUsecaseMockRecorder {
 }
 
 // Copy mocks base method.
-func (m *MockFolderUsecase) Copy(arg0, arg1 uint64, arg2 bool) (*dto.FolderDTO, error) {
+func (m *MockFolderUsecase) Copy(arg0, arg1 uint64, arg2 bool) (*dto.FolderInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Copy", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*dto.FolderDTO)
+	ret0, _ := ret[0].(*dto.FolderInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,10 +50,10 @@ func (mr *MockFolderUsecaseMockRecorder) Copy(arg0, arg1, arg2 interface{}) *gom
 }
 
 // Create mocks base method.
-func (m *MockFolderUsecase) Create(arg0 uint64, arg1 string, arg2 bool) (*dto.FolderDTO, error) {
+func (m *MockFolderUsecase) Create(arg0 uint64, arg1 string, arg2 bool) (*dto.FolderInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*dto.FolderDTO)
+	ret0, _ := ret[0].(*dto.FolderInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +65,10 @@ func (mr *MockFolderUsecaseMockRecorder) Create(arg0, arg1, arg2 interface{}) *g
 }
 
 // FindOne mocks base method.
-func (m *MockFolderUsecase) FindOne(arg0 string, arg1 bool) (*dto.FolderDTO, error) {
+func (m *MockFolderUsecase) FindOne(arg0 string, arg1 bool) (*dto.FolderInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindOne", arg0, arg1)
-	ret0, _ := ret[0].(*dto.FolderDTO)
+	ret0, _ := ret[0].(*dto.FolderInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -80,10 +80,10 @@ func (mr *MockFolderUsecaseMockRecorder) FindOne(arg0, arg1 interface{}) *gomock
 }
 
 // Move mocks base method.
-func (m *MockFolderUsecase) Move(arg0, arg1 uint64, arg2 bool) (*dto.FolderDTO, error) {
+func (m *MockFolderUsecase) Move(arg0, arg1 uint64, arg2 bool) (*dto.FolderInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Move", arg0, arg1, arg2)
-	ret0, _ := ret[0].(*dto.FolderDTO)
+	ret0, _ := ret[0].(*dto.FolderInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -92,6 +92,21 @@ func (m *MockFolderUsecase) Move(arg0, arg1 uint64, arg2 bool) (*dto.FolderDTO, 
 func (mr *MockFolderUsecaseMockRecorder) Move(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Move", reflect.TypeOf((*MockFolderUsecase)(nil).Move), arg0, arg1, arg2)
+}
+
+// Read mocks base method.
+func (m *MockFolderUsecase) Read(arg0 uint64, arg1 bool) (*dto.FolderBodyDTO, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Read", arg0, arg1)
+	ret0, _ := ret[0].(*dto.FolderBodyDTO)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Read indicates an expected call of Read.
+func (mr *MockFolderUsecaseMockRecorder) Read(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockFolderUsecase)(nil).Read), arg0, arg1)
 }
 
 // Remove mocks base method.
@@ -109,10 +124,10 @@ func (mr *MockFolderUsecaseMockRecorder) Remove(arg0, arg1 interface{}) *gomock.
 }
 
 // Update mocks base method.
-func (m *MockFolderUsecase) Update(arg0 uint64, arg1 string, arg2, arg3 bool) (*dto.FolderDTO, error) {
+func (m *MockFolderUsecase) Update(arg0 uint64, arg1 string, arg2, arg3 bool) (*dto.FolderInfoDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*dto.FolderDTO)
+	ret0, _ := ret[0].(*dto.FolderInfoDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

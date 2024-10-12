@@ -5,6 +5,7 @@ import (
 	"file-server/internal/app/api/domain/repository"
 	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/usecase/dto"
+	"file-server/internal/pkg/zip"
 	"fmt"
 	"strings"
 
@@ -12,12 +13,13 @@ import (
 )
 
 type FolderUsecase interface {
-	Create(uint64, string, bool) (*dto.FolderDTO, error)
-	Update(uint64, string, bool, bool) (*dto.FolderDTO, error)
+	Create(uint64, string, bool) (*dto.FolderInfoDTO, error)
+	Update(uint64, string, bool, bool) (*dto.FolderInfoDTO, error)
 	Remove(uint64, bool) error
-	Move(uint64, uint64, bool) (*dto.FolderDTO, error)
-	Copy(uint64, uint64, bool) (*dto.FolderDTO, error)
-	FindOne(string, bool) (*dto.FolderDTO, error)
+	Move(uint64, uint64, bool) (*dto.FolderInfoDTO, error)
+	Copy(uint64, uint64, bool) (*dto.FolderInfoDTO, error)
+	FindOne(string, bool) (*dto.FolderInfoDTO, error)
+	Read(uint64, bool) (*dto.FolderBodyDTO, error)
 }
 
 type folderUsecase struct {
@@ -36,7 +38,7 @@ func NewFolderUsecase(db *gorm.DB, folderInfoRepository repository.FolderInfoRep
 	}
 }
 
-func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool) (*dto.FolderInfoDTO, error) {
 	var folderInfo *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		parentFolder, err := fu.folderInfoRepository.FindOneByID(tx, parentFolderID)
@@ -69,10 +71,10 @@ func (fu *folderUsecase) Create(parentFolderID uint64, name string, isHide bool)
 		return nil, err
 	}
 
-	return fu.entityToDTO(folderInfo), nil
+	return fu.convertToFolderInfoDTO(folderInfo), nil
 }
 
-func (fu *folderUsecase) Update(id uint64, name string, isHide bool, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Update(id uint64, name string, isHide bool, isDisplayHiddenObject bool) (*dto.FolderInfoDTO, error) {
 	var folderInfo *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		var err error
@@ -120,7 +122,7 @@ func (fu *folderUsecase) Update(id uint64, name string, isHide bool, isDisplayHi
 		return nil, err
 	}
 
-	return fu.entityToDTO(folderInfo), nil
+	return fu.convertToFolderInfoDTO(folderInfo), nil
 }
 
 func (fu *folderUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
@@ -152,7 +154,7 @@ func (fu *folderUsecase) Remove(id uint64, isDisplayHiddenObject bool) error {
 	return nil
 }
 
-func (fu *folderUsecase) Move(id uint64, parentFolderID uint64, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Move(id uint64, parentFolderID uint64, isDisplayHiddenObject bool) (*dto.FolderInfoDTO, error) {
 	var folderInfo *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		var err error
@@ -201,10 +203,10 @@ func (fu *folderUsecase) Move(id uint64, parentFolderID uint64, isDisplayHiddenO
 		return nil, err
 	}
 
-	return fu.entityToDTO(folderInfo), nil
+	return fu.convertToFolderInfoDTO(folderInfo), nil
 }
 
-func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenObject bool) (*dto.FolderInfoDTO, error) {
 	var folderInfo *entity.FolderInfo
 	if err := fu.db.Transaction(func(tx *gorm.DB) error {
 		var sourceFolderInfo *entity.FolderInfo
@@ -252,10 +254,10 @@ func (fu *folderUsecase) Copy(id uint64, parentFolderID uint64, isDisplayHiddenO
 		return nil, err
 	}
 
-	return fu.entityToDTO(folderInfo), nil
+	return fu.convertToFolderInfoDTO(folderInfo), nil
 }
 
-func (fu *folderUsecase) FindOne(path string, isDisplayHiddenObject bool) (*dto.FolderDTO, error) {
+func (fu *folderUsecase) FindOne(path string, isDisplayHiddenObject bool) (*dto.FolderInfoDTO, error) {
 	var folderInfo *entity.FolderInfo
 	var err error
 	if isDisplayHiddenObject {
@@ -267,42 +269,39 @@ func (fu *folderUsecase) FindOne(path string, isDisplayHiddenObject bool) (*dto.
 		return nil, err
 	}
 
-	return fu.entityToDTO(folderInfo), nil
+	return fu.convertToFolderInfoDTO(folderInfo), nil
 }
 
-func (fu *folderUsecase) entityToDTO(folder *entity.FolderInfo) *dto.FolderDTO {
-	var folders []dto.FolderDTO
-	if folder.Folders != nil {
-		folders = make([]dto.FolderDTO, len(folder.Folders))
-		for i, v := range folder.Folders {
-			folders[i] = *fu.entityToDTO(&v)
-		}
+func (fu *folderUsecase) Read(id uint64, isDisplayHiddenObject bool) (*dto.FolderBodyDTO, error) {
+	var folderInfo *entity.FolderInfo
+	var err error
+	if isDisplayHiddenObject {
+		folderInfo, err = fu.folderInfoRepository.FindOneByIDWithLower(fu.db, id)
+	} else {
+		folderInfo, err = fu.folderInfoRepository.FindOneByIDAndIsHideWithLower(fu.db, id, false)
 	}
-	var files []dto.FileInfoDTO
-	if folder.Files != nil {
-		files = make([]dto.FileInfoDTO, len(folder.Files))
-		for i, v := range folder.Files {
-			files[i] = dto.FileInfoDTO{
-				ID:        v.ID,
-				FolderID:  v.FolderID,
-				Name:      v.Name.Value,
-				Path:      v.Path.Value,
-				MimeType:  v.MimeType.Value,
-				IsHide:    v.IsHide,
-				CreatedAt: v.CreatedAt,
-				UpdatedAt: v.UpdatedAt,
-			}
-		}
+	if err != nil {
+		return nil, err
 	}
-	return &dto.FolderDTO{
-		ID:             folder.ID,
-		ParentFolderID: folder.ParentFolderID,
-		Name:           folder.Name.Value,
-		Path:           folder.Path.Value,
-		IsHide:         folder.IsHide,
-		Folders:        folders,
-		Files:          files,
-		CreatedAt:      folder.CreatedAt,
-		UpdatedAt:      folder.UpdatedAt,
+
+	zipFile, err := zip.Compress(folderInfo.Path.Value)
+	if err != nil {
+		return nil, err
 	}
+
+	return dto.NewFolderBodyDTO("application/zip", zipFile), nil
+}
+
+func (fu *folderUsecase) convertToFolderInfoDTO(folder *entity.FolderInfo) *dto.FolderInfoDTO {
+	folders := make([]dto.FolderInfoDTO, len(folder.Folders))
+	for i, v := range folder.Folders {
+		folders[i] = *fu.convertToFolderInfoDTO(&v)
+	}
+
+	files := make([]dto.FileInfoDTO, len(folder.Files))
+	for i, v := range folder.Files {
+		files[i] = *dto.NewFileInfoDTO(v.ID, v.FolderID, v.Name.Value, v.Path.Value, v.MimeType.Value, v.IsHide, v.CreatedAt, v.UpdatedAt)
+	}
+
+	return dto.NewFolderInfoDTO(folder.ID, folder.ParentFolderID, folder.Name.Value, folder.Path.Value, folder.IsHide, folders, files, folder.CreatedAt, folder.UpdatedAt)
 }

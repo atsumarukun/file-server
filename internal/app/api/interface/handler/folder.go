@@ -20,6 +20,7 @@ type FolderHandler interface {
 	Move(*gin.Context)
 	Copy(*gin.Context)
 	FindOne(*gin.Context)
+	Read(*gin.Context)
 }
 
 type folderHandler struct {
@@ -49,7 +50,7 @@ func (fh *folderHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, fh.convertToFolderResponse(dto))
 }
 
 func (fh *folderHandler) Update(c *gin.Context) {
@@ -75,7 +76,7 @@ func (fh *folderHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, fh.convertToFolderResponse(dto))
 }
 
 func (fh *folderHandler) Remove(c *gin.Context) {
@@ -120,7 +121,7 @@ func (fh *folderHandler) Move(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, fh.convertToFolderResponse(dto))
 }
 
 func (fh *folderHandler) Copy(c *gin.Context) {
@@ -146,7 +147,7 @@ func (fh *folderHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, fh.convertToFolderResponse(dto))
 }
 
 func (fh *folderHandler) FindOne(c *gin.Context) {
@@ -162,7 +163,27 @@ func (fh *folderHandler) FindOne(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, fh.dtoToResponse(dto))
+	c.JSON(http.StatusOK, fh.convertToFolderResponse(dto))
+}
+
+func (fh *folderHandler) Read(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	dto, err := fh.usecase.Read(id, fh.getIsDisplayHiddenObject(c))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.String(http.StatusNotFound, err.Error())
+		} else {
+			c.String(http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	c.Data(http.StatusOK, dto.MimeType, dto.Body)
 }
 
 func (fh *folderHandler) getIsDisplayHiddenObject(c *gin.Context) bool {
@@ -173,39 +194,16 @@ func (fh *folderHandler) getIsDisplayHiddenObject(c *gin.Context) bool {
 	}
 }
 
-func (fh *folderHandler) dtoToResponse(folder *dto.FolderDTO) *responses.FolderResponse {
-	var folders []responses.FolderResponse
-	if folder.Folders != nil {
-		folders = make([]responses.FolderResponse, len(folder.Folders))
-		for i, v := range folder.Folders {
-			folders[i] = *fh.dtoToResponse(&v)
-		}
+func (fh *folderHandler) convertToFolderResponse(folder *dto.FolderInfoDTO) *responses.FolderResponse {
+	folders := make([]responses.FolderResponse, len(folder.Folders))
+	for i, v := range folder.Folders {
+		folders[i] = *fh.convertToFolderResponse(&v)
 	}
-	var files []responses.FileResponse
-	if folder.Files != nil {
-		files = make([]responses.FileResponse, len(folder.Files))
-		for i, v := range folder.Files {
-			files[i] = responses.FileResponse{
-				ID:        v.ID,
-				FolderID:  v.FolderID,
-				Name:      v.Name,
-				Path:      v.Path,
-				MimeType:  v.MimeType,
-				IsHide:    v.IsHide,
-				CreatedAt: v.CreatedAt,
-				UpdatedAt: v.UpdatedAt,
-			}
-		}
+
+	files := make([]responses.FileResponse, len(folder.Files))
+	for i, v := range folder.Files {
+		files[i] = *responses.NewFileResponse(v.ID, v.FolderID, v.Name, v.Path, v.MimeType, v.IsHide, v.CreatedAt, v.UpdatedAt)
 	}
-	return &responses.FolderResponse{
-		ID:             folder.ID,
-		ParentFolderID: folder.ParentFolderID,
-		Name:           folder.Name,
-		Path:           folder.Path,
-		IsHide:         folder.IsHide,
-		Folders:        folders,
-		Files:          files,
-		CreatedAt:      folder.CreatedAt,
-		UpdatedAt:      folder.UpdatedAt,
-	}
+
+	return responses.NewFolderResponse(folder.ID, folder.ParentFolderID, folder.Name, folder.Path, folder.IsHide, folders, files, folder.CreatedAt, folder.UpdatedAt)
 }

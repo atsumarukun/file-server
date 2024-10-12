@@ -5,6 +5,7 @@ import (
 	"file-server/internal/app/api/interface/requests"
 	"file-server/internal/app/api/interface/responses"
 	"file-server/internal/app/api/usecase"
+	"file-server/internal/app/api/usecase/dto"
 	"file-server/internal/pkg/types"
 	"io"
 	"net/http"
@@ -77,7 +78,7 @@ func (fh *fileHandler) Create(c *gin.Context) {
 
 	res := make([]responses.FileResponse, len(dtos))
 	for i, v := range dtos {
-		f := responses.NewFileResponse(v.ID, v.FolderID, v.Name, v.Path, v.MimeType, v.IsHide, v.CreatedAt, v.UpdatedAt)
+		f := fh.convertToFileResponse(&v)
 		res[i] = *f
 	}
 
@@ -107,7 +108,7 @@ func (fh *fileHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.NewFileResponse(dto.ID, dto.FolderID, dto.Name, dto.Path, dto.MimeType, dto.IsHide, dto.CreatedAt, dto.UpdatedAt))
+	c.JSON(http.StatusOK, fh.convertToFileResponse(dto))
 }
 
 func (fh *fileHandler) Remove(c *gin.Context) {
@@ -152,7 +153,7 @@ func (fh *fileHandler) Move(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.NewFileResponse(dto.ID, dto.FolderID, dto.Name, dto.Path, dto.MimeType, dto.IsHide, dto.CreatedAt, dto.UpdatedAt))
+	c.JSON(http.StatusOK, fh.convertToFileResponse(dto))
 }
 
 func (fh *fileHandler) Copy(c *gin.Context) {
@@ -178,7 +179,7 @@ func (fh *fileHandler) Copy(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, responses.NewFileResponse(dto.ID, dto.FolderID, dto.Name, dto.Path, dto.MimeType, dto.IsHide, dto.CreatedAt, dto.UpdatedAt))
+	c.JSON(http.StatusOK, fh.convertToFileResponse(dto))
 }
 
 func (fh *fileHandler) Read(c *gin.Context) {
@@ -207,4 +208,8 @@ func (fh *fileHandler) getIsDisplayHiddenObject(c *gin.Context) bool {
 	} else {
 		return false
 	}
+}
+
+func (fh *fileHandler) convertToFileResponse(file *dto.FileInfoDTO) *responses.FileResponse {
+	return responses.NewFileResponse(file.ID, file.FolderID, file.Name, file.Path, file.MimeType, file.IsHide, file.CreatedAt, file.UpdatedAt)
 }

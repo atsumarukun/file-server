@@ -14,9 +14,10 @@ func route(r *gin.Engine) {
 
 		folders.Use(authMiddleware())
 
-		folders.GET("/*path", folderHandler.FindOne)
+		folders.GET("/find/*path", folderHandler.FindOne)
 		folders.PUT("/:id", folderHandler.Update)
 		folders.DELETE("/:id", folderHandler.Remove)
+		folders.GET("/:id/body", folderHandler.Read)
 		folders.PUT("/:id/move", folderHandler.Move)
 		folders.POST("/:id/copy", folderHandler.Copy)
 	}

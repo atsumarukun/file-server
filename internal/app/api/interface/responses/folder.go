@@ -13,3 +13,17 @@ type FolderResponse struct {
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
 }
+
+func NewFolderResponse(id uint64, parentFolderID *uint64, name string, path string, isHide bool, folders []FolderResponse, files []FileResponse, createdAt time.Time, updatedAt time.Time) *FolderResponse {
+	return &FolderResponse{
+		ID:             id,
+		ParentFolderID: parentFolderID,
+		Name:           name,
+		Path:           path,
+		IsHide:         isHide,
+		Folders:        folders,
+		Files:          files,
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
+	}
+}
