@@ -48,11 +48,11 @@ func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) 
 			return err
 		}
 
-		for i, file := range files {
-			path := parentFolder.Path.Value + file.Name
-			mimeType := http.DetectContentType(file.Body)
+		for i, v := range files {
+			path := parentFolder.Path.Value + v.Name
+			mimeType := http.DetectContentType(v.Body)
 
-			fileInfo, err := entity.NewFileInfo(folderID, file.Name, path, mimeType, isHide)
+			fileInfo, err := entity.NewFileInfo(folderID, v.Name, path, mimeType, isHide)
 			if err != nil {
 				return err
 			}
@@ -64,7 +64,7 @@ func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) 
 				return fmt.Errorf("%s is already exists", fileInfo.Path.Value)
 			}
 
-			fileBody := entity.NewFileBody(path, file.Body)
+			fileBody := entity.NewFileBody(path, v.Body)
 			if err := fu.fileBodyRepository.Create(fileBody); err != nil {
 				return err
 			}
@@ -77,9 +77,8 @@ func (fu *fileUsecase) Create(folderID uint64, isHide bool, files []types.File) 
 	}
 
 	dtos := make([]dto.FileInfoDTO, len(fileInfos))
-	for i, file := range fileInfos {
-		f := dto.NewFileInfoDTO(file.ID, file.FolderID, file.Name.Value, file.Path.Value, file.MimeType.Value, file.IsHide, file.CreatedAt, file.UpdatedAt)
-		dtos[i] = *f
+	for i, v := range fileInfos {
+		dtos[i] = *fu.convertToFileInfoDTO(&v)
 	}
 	return dtos, nil
 }

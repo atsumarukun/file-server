@@ -19,15 +19,15 @@ func (fi *fileInfoInfrastructure) Create(db *gorm.DB, file *entity.FileInfo) (*e
 	if err := db.Create(fileModel).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(fileModel)
+	return fi.convertToEntity(fileModel)
 }
 
 func (fi *fileInfoInfrastructure) Creates(db *gorm.DB, files []entity.FileInfo) ([]entity.FileInfo, error) {
-	fileModels := fi.entitiesToModels(files)
+	fileModels := fi.convertToModels(files)
 	if err := db.Create(fileModels).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelsToEntities(fileModels)
+	return fi.convertToEntities(fileModels)
 }
 
 func (fi *fileInfoInfrastructure) Update(db *gorm.DB, file *entity.FileInfo) (*entity.FileInfo, error) {
@@ -35,7 +35,7 @@ func (fi *fileInfoInfrastructure) Update(db *gorm.DB, file *entity.FileInfo) (*e
 	if err := db.Save(fileModel).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(fileModel)
+	return fi.convertToEntity(fileModel)
 }
 
 func (fi *fileInfoInfrastructure) Remove(db *gorm.DB, file *entity.FileInfo) error {
@@ -48,7 +48,7 @@ func (fi *fileInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity.F
 	if err := db.First(&fileModel, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&fileModel)
+	return fi.convertToEntity(&fileModel)
 }
 
 func (fi *fileInfoInfrastructure) FindOneByIDAndIsHide(db *gorm.DB, id uint64, isHide bool) (*entity.FileInfo, error) {
@@ -56,7 +56,7 @@ func (fi *fileInfoInfrastructure) FindOneByIDAndIsHide(db *gorm.DB, id uint64, i
 	if err := db.First(&fileModel, "id = ? and is_hide = ?", id, isHide).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&fileModel)
+	return fi.convertToEntity(&fileModel)
 }
 
 func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FileInfo, error) {
@@ -64,7 +64,7 @@ func (fi *fileInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*enti
 	if err := db.First(&fileModel, "path = ?", path).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&fileModel)
+	return fi.convertToEntity(&fileModel)
 }
 
 func (fi *fileInfoInfrastructure) entityToModel(file *entity.FileInfo) *model.FileModel {
@@ -80,16 +80,16 @@ func (fi *fileInfoInfrastructure) entityToModel(file *entity.FileInfo) *model.Fi
 	}
 }
 
-func (fi *fileInfoInfrastructure) entitiesToModels(files []entity.FileInfo) []model.FileModel {
+func (fi *fileInfoInfrastructure) convertToModels(files []entity.FileInfo) []model.FileModel {
 	models := make([]model.FileModel, len(files))
-	for i, file := range files {
-		model := fi.entityToModel(&file)
+	for i, v := range files {
+		model := fi.entityToModel(&v)
 		models[i] = *model
 	}
 	return models
 }
 
-func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.FileInfo, error) {
+func (fi *fileInfoInfrastructure) convertToEntity(file *model.FileModel) (*entity.FileInfo, error) {
 	fileEntity := &entity.FileInfo{}
 	fileEntity.ID = file.ID
 	fileEntity.FolderID = file.FolderID
@@ -108,10 +108,10 @@ func (fi *fileInfoInfrastructure) modelToEntity(file *model.FileModel) (*entity.
 	return fileEntity, nil
 }
 
-func (fi *fileInfoInfrastructure) modelsToEntities(files []model.FileModel) ([]entity.FileInfo, error) {
+func (fi *fileInfoInfrastructure) convertToEntities(files []model.FileModel) ([]entity.FileInfo, error) {
 	entities := make([]entity.FileInfo, len(files))
-	for i, file := range files {
-		entity, err := fi.modelToEntity(&file)
+	for i, v := range files {
+		entity, err := fi.convertToEntity(&v)
 		if err != nil {
 			return nil, err
 		}

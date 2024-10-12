@@ -15,15 +15,15 @@ func NewFolderInfoInfrastructure() repository.FolderInfoRepository {
 }
 
 func (fi *folderInfoInfrastructure) Create(db *gorm.DB, folder *entity.FolderInfo) (*entity.FolderInfo, error) {
-	folderModel := fi.entityToModel(folder)
+	folderModel := fi.convertToModel(folder)
 	if err := db.Create(folderModel).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(folderModel)
+	return fi.convertToEntity(folderModel)
 }
 
 func (fi *folderInfoInfrastructure) Update(db *gorm.DB, folder *entity.FolderInfo) (*entity.FolderInfo, error) {
-	folderModel := fi.entityToModel(folder)
+	folderModel := fi.convertToModel(folder)
 	if err := db.Save(folderModel).Error; err != nil {
 		return nil, err
 	}
@@ -39,11 +39,11 @@ func (fi *folderInfoInfrastructure) Update(db *gorm.DB, folder *entity.FolderInf
 			return nil, err
 		}
 	}
-	return fi.modelToEntity(folderModel)
+	return fi.convertToEntity(folderModel)
 }
 
 func (fi *folderInfoInfrastructure) Remove(db *gorm.DB, folder *entity.FolderInfo) error {
-	folderModel := fi.entityToModel(folder)
+	folderModel := fi.convertToModel(folder)
 	return db.Delete(folderModel).Error
 }
 
@@ -52,7 +52,7 @@ func (fi *folderInfoInfrastructure) FindOneByID(db *gorm.DB, id uint64) (*entity
 	if err := db.First(&folderModel, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&folderModel)
+	return fi.convertToEntity(&folderModel)
 }
 
 func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*entity.FolderInfo, error) {
@@ -60,7 +60,7 @@ func (fi *folderInfoInfrastructure) FindOneByPath(db *gorm.DB, path string) (*en
 	if err := db.First(&folderModel, "path = ?", path).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&folderModel)
+	return fi.convertToEntity(&folderModel)
 }
 
 func (fi *folderInfoInfrastructure) FindOneByPathWithChildren(db *gorm.DB, path string) (*entity.FolderInfo, error) {
@@ -68,7 +68,7 @@ func (fi *folderInfoInfrastructure) FindOneByPathWithChildren(db *gorm.DB, path 
 	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "path = ?", path).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&folderModel)
+	return fi.convertToEntity(&folderModel)
 }
 
 func (fi *folderInfoInfrastructure) FindOneByPathAndIsHideWithChildren(db *gorm.DB, path string, isHide bool) (*entity.FolderInfo, error) {
@@ -76,7 +76,7 @@ func (fi *folderInfoInfrastructure) FindOneByPathAndIsHideWithChildren(db *gorm.
 	if err := db.Preload("Folders", "is_hide", isHide).Preload("Files", "is_hide", isHide).First(&folderModel, "path = ? and is_hide = ?", path, isHide).Error; err != nil {
 		return nil, err
 	}
-	return fi.modelToEntity(&folderModel)
+	return fi.convertToEntity(&folderModel)
 }
 
 func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64) (*entity.FolderInfo, error) {
@@ -84,7 +84,7 @@ func (fi *folderInfoInfrastructure) FindOneByIDWithLower(db *gorm.DB, id uint64)
 	if err := db.Preload("Folders").Preload("Files").First(&folderModel, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	folder, err := fi.modelToEntity(&folderModel)
+	folder, err := fi.convertToEntity(&folderModel)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (fi *folderInfoInfrastructure) FindOneByIDAndIsHideWithLower(db *gorm.DB, i
 	if err := db.Preload("Folders", "is_hide", isHide).Preload("Files", "is_hide", isHide).First(&folderModel, "id = ? and is_hide = ?", id, isHide).Error; err != nil {
 		return nil, err
 	}
-	folder, err := fi.modelToEntity(&folderModel)
+	folder, err := fi.convertToEntity(&folderModel)
 	if err != nil {
 		return nil, err
 	}
@@ -125,12 +125,12 @@ func (fi *folderInfoInfrastructure) FindOneByIDAndIsHideWithLower(db *gorm.DB, i
 	return folder, nil
 }
 
-func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *model.FolderModel {
+func (fi *folderInfoInfrastructure) convertToModel(folder *entity.FolderInfo) *model.FolderModel {
 	var folders []model.FolderModel
 	if folder.Folders != nil {
 		folders = make([]model.FolderModel, len(folder.Folders))
 		for i, v := range folder.Folders {
-			folders[i] = *fi.entityToModel(&v)
+			folders[i] = *fi.convertToModel(&v)
 		}
 	}
 	var files []model.FileModel
@@ -162,12 +162,12 @@ func (fi *folderInfoInfrastructure) entityToModel(folder *entity.FolderInfo) *mo
 	}
 }
 
-func (fi *folderInfoInfrastructure) modelToEntity(folder *model.FolderModel) (*entity.FolderInfo, error) {
+func (fi *folderInfoInfrastructure) convertToEntity(folder *model.FolderModel) (*entity.FolderInfo, error) {
 	var folders []entity.FolderInfo
 	if folder.Folders != nil {
 		folders = make([]entity.FolderInfo, len(folder.Folders))
 		for i, v := range folder.Folders {
-			f, err := fi.modelToEntity(&v)
+			f, err := fi.convertToEntity(&v)
 			if err != nil {
 				return nil, err
 			}
