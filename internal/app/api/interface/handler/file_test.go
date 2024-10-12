@@ -253,3 +253,36 @@ func TestCopyFile(t *testing.T) {
 		t.Error(w.Body.String())
 	}
 }
+
+func TestReadFile(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	req, err := http.NewRequest("PUT", "/files/1/copy", nil)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ctx.Request = req
+	ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: strconv.Itoa(1)})
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	dto := &dto.FileBodyDTO{
+		MimeType: "mime/type",
+		Body:     []byte("file"),
+	}
+
+	fu := mock_usecase.NewMockFileUsecase(ctrl)
+	fu.EXPECT().Read(gomock.Any(), gomock.Any()).Return(dto, nil)
+
+	fh := NewFileHandler(fu)
+
+	fh.Read(ctx)
+
+	if w.Code != http.StatusOK {
+		t.Error(w.Body.String())
+	}
+}
