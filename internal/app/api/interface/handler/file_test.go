@@ -257,7 +257,7 @@ func TestCopyFile(t *testing.T) {
 func TestReadFile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	req, err := http.NewRequest("PUT", "/files/1/copy", nil)
+	req, err := http.NewRequest("PUT", "/files/1/body", nil)
 	if err != nil {
 		t.Error(err.Error())
 	}
