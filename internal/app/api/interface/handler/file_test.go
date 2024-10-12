@@ -58,16 +58,7 @@ func TestCreateFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := []dto.FileInfoDTO{{
-		ID:        1,
-		FolderID:  1,
-		Name:      "name",
-		Path:      "/path/name",
-		MimeType:  "mime/type",
-		IsHide:    false,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}}
+	dto := dto.NewFileInfoDTO(1, 1, "name", "path/name", "mime/type", false, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFileUsecase(ctrl)
 	fu.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -107,16 +98,7 @@ func TestUpdateFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileInfoDTO{
-		ID:        1,
-		FolderID:  1,
-		Name:      "name",
-		Path:      "/path/name",
-		MimeType:  "mime/type",
-		IsHide:    false,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	dto := dto.NewFileInfoDTO(1, 1, "name", "path/name", "mime/type", false, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFileUsecase(ctrl)
 	fu.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -183,16 +165,7 @@ func TestMoveFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileInfoDTO{
-		ID:        1,
-		FolderID:  1,
-		Name:      "name",
-		Path:      "/path/name",
-		MimeType:  "mime/type",
-		IsHide:    false,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	dto := dto.NewFileInfoDTO(1, 1, "name", "path/name", "mime/type", false, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFileUsecase(ctrl)
 	fu.EXPECT().Move(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -231,16 +204,7 @@ func TestCopyFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileInfoDTO{
-		ID:        1,
-		FolderID:  1,
-		Name:      "name",
-		Path:      "/path/name",
-		MimeType:  "mime/type",
-		IsHide:    false,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	dto := dto.NewFileInfoDTO(1, 1, "name", "path/name", "mime/type", false, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFileUsecase(ctrl)
 	fu.EXPECT().Copy(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -270,10 +234,7 @@ func TestReadFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FileBodyDTO{
-		MimeType: "mime/type",
-		Body:     []byte("file"),
-	}
+	dto := dto.NewFileBodyDTO("mime/type", []byte("file"))
 
 	fu := mock_usecase.NewMockFileUsecase(ctrl)
 	fu.EXPECT().Read(gomock.Any(), gomock.Any()).Return(dto, nil)

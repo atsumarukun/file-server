@@ -42,15 +42,7 @@ func TestCreateFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderInfoDTO{
-		ID:             1,
-		ParentFolderID: nil,
-		Name:           "name",
-		Path:           "/path/name/",
-		IsHide:         false,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
-	}
+	dto := dto.NewFolderInfoDTO(1, nil, "name", "/path/name/", false, nil, nil, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFolderUsecase(ctrl)
 	fu.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -90,15 +82,7 @@ func TestUpdateFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderInfoDTO{
-		ID:             1,
-		ParentFolderID: nil,
-		Name:           "name",
-		Path:           "/path/name/",
-		IsHide:         false,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
-	}
+	dto := dto.NewFolderInfoDTO(1, nil, "name", "/path/name/", false, nil, nil, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFolderUsecase(ctrl)
 	fu.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -165,15 +149,7 @@ func TestMoveFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderInfoDTO{
-		ID:             1,
-		ParentFolderID: nil,
-		Name:           "name",
-		Path:           "/path/name/",
-		IsHide:         false,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
-	}
+	dto := dto.NewFolderInfoDTO(1, nil, "name", "/path/name/", false, nil, nil, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFolderUsecase(ctrl)
 	fu.EXPECT().Move(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -212,15 +188,7 @@ func TestCopyFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderInfoDTO{
-		ID:             1,
-		ParentFolderID: nil,
-		Name:           "name",
-		Path:           "/path/name/",
-		IsHide:         false,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
-	}
+	dto := dto.NewFolderInfoDTO(1, nil, "name", "/path/name/", false, nil, nil, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFolderUsecase(ctrl)
 	fu.EXPECT().Copy(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -250,15 +218,7 @@ func TestFindOneFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderInfoDTO{
-		ID:             1,
-		ParentFolderID: nil,
-		Name:           "name",
-		Path:           "/path/name/",
-		IsHide:         false,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
-	}
+	dto := dto.NewFolderInfoDTO(1, nil, "name", "/path/name/", false, nil, nil, time.Now(), time.Now())
 
 	fu := mock_usecase.NewMockFolderUsecase(ctrl)
 	fu.EXPECT().FindOne(gomock.Any(), gomock.Any()).Return(dto, nil)
@@ -288,10 +248,7 @@ func TestReadFolder(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := &dto.FolderBodyDTO{
-		MimeType: "mime/type",
-		Body:     []byte("file"),
-	}
+	dto := dto.NewFolderBodyDTO("mime/type", []byte("folder"))
 
 	fu := mock_usecase.NewMockFolderUsecase(ctrl)
 	fu.EXPECT().Read(gomock.Any(), gomock.Any()).Return(dto, nil)
