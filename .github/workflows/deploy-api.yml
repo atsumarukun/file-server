@@ -32,6 +32,8 @@ jobs:
           context: .
           file: build/package/Dockerfile.deploy
           push: true
+          platform: linux/amd64
+          provenance: false
           tags: |
             ghcr.io/${{ github.repository_owner }}/file-server:latest
             ghcr.io/${{ github.repository_owner }}/file-server:1.0.0
