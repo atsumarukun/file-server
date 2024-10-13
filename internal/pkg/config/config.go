@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
 )
 
 const (
@@ -20,10 +18,6 @@ var (
 
 func Load() error {
 	var err error
-	if err = godotenv.Load(".env"); err != nil {
-		return err
-	}
-
 	if API_PORT, err = strconv.Atoi(os.Getenv("API_PORT")); err != nil {
 		return err
 	}
