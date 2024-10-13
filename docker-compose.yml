@@ -15,9 +15,9 @@ services:
       context: ./build/package
       dockerfile: Dockerfile.local
     volumes:
-      - .:/workspace/api
-      - db_data:/workspace/api/db/data
-    working_dir: /workspace/api
+      - .:/workspace
+      - db_data:/workspace/db/data
+    working_dir: /workspace
     ports:
       - 8000:${API_PORT}
     environment:
