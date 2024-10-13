@@ -234,7 +234,7 @@ func TestCopyFile(t *testing.T) {
 	}
 }
 
-func CreateReadFile(t *testing.T) {
+func TestReadFile(t *testing.T) {
 	db, mock, err := database.Open()
 	if err != nil {
 		t.Error(err.Error())

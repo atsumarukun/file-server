@@ -1,13 +1,16 @@
 package usecase
 
 import (
+	"archive/zip"
+	"bytes"
 	"file-server/internal/app/api/domain/entity"
 	"file-server/internal/app/api/domain/repository"
 	"file-server/internal/app/api/domain/service"
 	"file-server/internal/app/api/usecase/dto"
-	"file-server/internal/pkg/zip"
 	"fmt"
+	"io/fs"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -284,12 +287,48 @@ func (fu *folderUsecase) Read(id uint64, isDisplayHiddenObject bool) (*dto.Folde
 		return nil, err
 	}
 
-	zipFile, err := zip.Compress(folderInfo.Path.Value)
+	folderBody, err := fu.folderBodyRepository.Read(folderInfo.Path.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	return dto.NewFolderBodyDTO("application/zip", zipFile), nil
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
+
+	var compress func(*zip.Writer, *entity.FolderBody, string) error
+	compress = func(w *zip.Writer, folderBody *entity.FolderBody, innerPath string) error {
+		for _, v := range folderBody.Folders {
+			name := v.Path[strings.LastIndex(v.Path[:len(v.Path)-1], "/")+1:]
+			if err := compress(w, &v, innerPath+name+"/"); err != nil {
+				return err
+			}
+		}
+		for _, v := range folderBody.Files {
+			header := &zip.FileHeader{
+				Name:     innerPath + v.Path[strings.LastIndex(v.Path, "/")+1:],
+				Method:   zip.Deflate,
+				Modified: time.Now(),
+			}
+			header.SetMode(fs.ModePerm)
+			f, err := w.CreateHeader(header)
+			if err != nil {
+				return err
+			}
+			if _, err := f.Write(v.Body); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if err := compress(w, folderBody, "/"+folderInfo.Name.Value+"/"); err != nil {
+		return nil, err
+	}
+
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+
+	return dto.NewFolderBodyDTO("application/zip", buf.Bytes()), nil
 }
 
 func (fu *folderUsecase) convertToFolderInfoDTO(folder *entity.FolderInfo) *dto.FolderInfoDTO {

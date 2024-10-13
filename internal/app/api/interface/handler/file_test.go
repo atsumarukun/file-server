@@ -58,10 +58,10 @@ func TestCreateFile(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	dto := dto.NewFileInfoDTO(1, 1, "name", "path/name", "mime/type", false, time.Now(), time.Now())
+	dtos := []dto.FileInfoDTO{*dto.NewFileInfoDTO(1, 1, "name", "path/name", "mime/type", false, time.Now(), time.Now())}
 
 	fu := mock_usecase.NewMockFileUsecase(ctrl)
-	fu.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(dto, nil)
+	fu.EXPECT().Create(gomock.Any(), gomock.Any(), gomock.Any()).Return(dtos, nil)
 
 	fh := NewFileHandler(fu)
 
