@@ -41,7 +41,9 @@ func TestCreateFile(t *testing.T) {
 	if err != nil {
 		t.Error(err.Error())
 	}
-	files.Write([]byte("file"))
+	if _, err := files.Write([]byte("file")); err != nil {
+		t.Error(err.Error())
+	}
 
 	writer.Close()
 

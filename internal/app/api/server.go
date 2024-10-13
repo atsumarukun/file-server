@@ -37,7 +37,11 @@ func Serve() {
 		Handler: r,
 	}
 
-	go srv.ListenAndServe()
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			panic(err)
+		}
+	}()
 
 	<-ctx.Done()
 
